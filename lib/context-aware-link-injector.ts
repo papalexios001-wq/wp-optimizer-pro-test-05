@@ -1,4 +1,3 @@
-import Anthropic from '@anthropic-ai/sdk';
 
 interface ContextualLink {
   text: string;
