@@ -33,7 +33,7 @@ export async function generateEnhancedBlogContent(
     // Step 2: Combine all content sections
     let fullContent = `${blogResult.quickAnswer}\n\n`;
     
-    blogResult.sections.forEach(section => {
+    blogResult.sections.forEach(: { heading: string; content: string }section => {
       fullContent += `## ${section.heading}\n${section.content}\n\n`;
     });
 
