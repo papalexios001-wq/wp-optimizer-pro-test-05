@@ -50,11 +50,12 @@ export const SEMANTIC_LINK_REPLACEMENTS: InternalLinkTarget[] = [
 {
       url: '/fitness-and-health-calculators/calorie-calculation-tool/',
     title: '2026 Calorie Calculator: Precise Daily Needs Tool',
+    },
   {
-    url: '/weight-loss/jump-start-your-weight-loss-plan/',
-    title: '54
-      Your Weight Loss Plan',
-];
+  url: '/weight-loss/jump-start-your-weight-loss-plan/',
+        title: 'Jump Start Your Weight Loss Plan',
+  },
+  ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // PHASE 1.2: FAQ ANSWER EXPANSION (300-500 WORDS EACH)
@@ -224,7 +225,8 @@ export const PHASE_1_STATUS: Phase1RemediationStatus = {
 };
 
 export default {
-  SEMANTIC_LINK_REPLACEMENTS,
+  :53
+    _REPLACEMENTS,
   EXPANDED_FAQ_TEMPLATES,
   generatePhase1SchemaMarkup,
   VIDEO_INTEGRATION,
