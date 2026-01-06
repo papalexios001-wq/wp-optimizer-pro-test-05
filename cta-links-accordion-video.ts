@@ -144,4 +144,90 @@ export function createEnterpriseAccordion(items: FAQItem[], title: string = '�
   return html;
 }
 
-export default { createCTABox, createEnterpriseAccordion };
+// ========================
+// REFERENCES SECTION - SOTA
+// ========================
+
+export interface Reference {
+  title: string;
+  url: string;
+  source?: string;
+  author?: string;
+}
+
+export function createReferencesSection(references: Reference[]): string {
+  if (!references || references.length === 0) return '';
+  
+  let html = `<section class="sota-references" style="
+    margin: 64px 0;
+    background: linear-gradient(to bottom, #f9fafb, #ffffff);
+    padding: 48px;
+    border-radius: 24px;
+    border: 1px solid rgba(0,0,0,0.06);
+  ">
+    <h2 style="
+      font-size: 28px;
+      font-weight: 800;
+      color: #1f2937;
+      margin: 0 0 32px 0;
+    ">📚 References</h2>
+    <ol style="margin: 0; padding-left: 24px;">`;
+  
+  references.forEach((ref) => {
+    html += `<li style="margin-bottom: 16px; color: #4b5563; line-height: 1.6;">
+      <a href="${ref.url}" style="color: #3b82f6; text-decoration: none; font-weight: 600;" target="_blank" rel="noopener">${ref.title}</a>
+      ${ref.source ? `<span style="color: #9ca3af;"> — ${ref.source}</span>` : ''}
+    </li>`;
+  });
+  
+  html += `</ol></section>`;
+  return html;
+}
+
+// ========================
+// YOUTUBE VIDEO INTEGRATION - SOTA
+// ========================
+
+export function integrateYouTubeVideoIntoContent(
+  htmlContent: string,
+  videoId: string,
+  timestamp?: string,
+  title?: string
+): string {
+  if (!videoId) return htmlContent;
+  
+  const embedUrl = `https://www.youtube.com/embed/${videoId}${timestamp ? `?start=${timestamp}` : ''}`;
+  
+  const videoEmbed = `<div class="sota-video-embed" style="
+    margin: 48px 0;
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.15);
+  ">
+    <iframe
+      style="
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+        border-radius: 16px;
+      "
+      src="${embedUrl}"
+      title="${title || 'YouTube video'}"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowFullScreen>
+    </iframe>
+  </div>`;
+  
+  return htmlContent + videoEmbed;
+}
+
+
+
+export default { createCTABox, createEnterpriseAccordion , createReferencesSection, integrateYouTubeVideoIntoContent };
