@@ -1,255 +1,147 @@
 // CTA LINKS, FAQ ACCORDION, SCHEMA MARKUP & YOUTUBE VIDEO INTEGRATION
 // WP Optimizer Pro v30.0 - Enterprise SOTA Implementation
+// SOTA UI/UX Components with Modern Design System
 
-// =======================
+// ========================
 // CTA BOX WITH LINKED TEXT
-// =======================
+// ========================
 
 export interface CTABoxConfig {
   heading: string;
   description: string;
   buttonText: string;
-  targetLink: string;  // Internal link URL
+  targetLink: string;
   emoji?: string;
 }
 
-// Create SOTA CTA box with semantically validated button link
+// Create SOTA CTA box with gradient, blur effects & modern styling
 export function createCTABox(config: CTABoxConfig): string {
   const { emoji = '🚀', heading, description, buttonText, targetLink } = config;
   
-  return `
-<div class="cta-box" style="background-color: #f8f9fa; padding: 32px; border-radius: 12px; margin: 32px 0;">
-  <h3 style="margin-top: 0; color: #1f2937; font-size: 24px;">${emoji} ${heading}</h3>
-  <p style="color: #4b5563; line-height: 1.6;">${description}</p>
-  <a href="${targetLink}" class="cta-button" data-internal-link="true" style="display: inline-block; background-color: #3b82f6; color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600;">${buttonText} →</a>
-</div>
-`;
+  return `<div class="sota-cta-box" style="
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 48px;
+    border-radius: 24px;
+    margin: 64px 0;
+    box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+    position: relative;
+    overflow: hidden;
+  ">
+    <div style="position: absolute; inset: 0; background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.1), transparent); pointer-events: none;"></div>
+    <div style="position: relative; z-index: 1;">
+      <h3 style="
+        font-size: clamp(28px, 4vw, 42px);
+        font-weight: 800;
+        color: white;
+        margin: 0 0 16px 0;
+        letter-spacing: -0.02em;
+      ">${emoji} ${heading}</h3>
+      <p style="
+        font-size: 18px;
+        line-height: 1.7;
+        color: rgba(255,255,255,0.9);
+        margin: 0 0 32px 0;
+        max-width: 600px;
+      ">${description}</p>
+      <a href="${targetLink}" class="sota-cta-btn" style="
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        background: white;
+        color: #667eea;
+        padding: 18px 36px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 16px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 12px 32px rgba(0,0,0,0.2)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.15)';">
+        ${buttonText}
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>`;
 }
 
-// ==========================
+// ========================
 // ENTERPRISE FAQ ACCORDION
-// ==========================
+// ========================
 
 export interface FAQItem {
   question: string;
   answer: string;
 }
 
-export function createEnterpriseAccordion(items: FAQItem[], title: string = 'Frequently Asked Questions'): string {
-  let html = `<section class="faq-accordion" style="margin: 40px 0; background-color: #ffffff; padding: 32px; border-radius: 12px;">`;
-  html += `<h2 style="color: #1f2937; font-size: 28px; font-weight: 700; margin-bottom: 24px;">${title}</h2>`;
-  html += `<div class="faq-items" role="region">`;
+// Create SOTA FAQ accordion with smooth animations
+export function createEnterpriseAccordion(items: FAQItem[], title: string = '💬 Frequently Asked Questions'): string {
+  let html = `<section class="sota-faq-section" style="
+    margin: 64px 0;
+    background: linear-gradient(to bottom, #f9fafb, #ffffff);
+    padding: 56px;
+    border-radius: 24px;
+    border: 1px solid rgba(0,0,0,0.06);
+  ">
+    <h2 style="
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 800;
+      color: #1f2937;
+      margin: 0 0 40px 0;
+      letter-spacing: -0.03em;
+    ">${title}</h2>
+    <div class="faq-container" role="region" aria-label="FAQ">`;
 
   items.forEach((item, index) => {
-    html += `
-    <details class="faq-item" style="margin-bottom: 16px; border: 1px solid #e5e7eb; border-radius: 8px;">
-      <summary style="padding: 16px; background-color: #3b82f6; color: white; cursor: pointer; font-weight: 600;">${item.question}</summary>
-      <div style="padding: 20px; background-color: #f9fafb;">
-        <p style="color: #4b5563; line-height: 1.8;">${item.answer}</p>
+    html += `<details class="faq-item-sota" style="
+      margin-bottom: 16px;
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    " onmouseover="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 10px 30px rgba(59, 130, 246, 0.1)';" onmouseout="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">
+      <summary style="
+        padding: 24px 28px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 18px;
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: all 0.3s ease;
+      ">
+        <span style="
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          background: rgba(255,255,255,0.2);
+          border-radius: 8px;
+          font-weight: 800;
+          flex-shrink: 0;
+        ">${index + 1}</span>
+        <span>${item.question}</span>
+      </summary>
+      <div style="
+        padding: 32px;
+        background: linear-gradient(to bottom, #f9fafb, white);
+      ">
+        <p style="
+          color: #4b5563;
+          line-height: 1.8;
+          font-size: 16px;
+          margin: 0;
+        ">${item.answer}</p>
       </div>
-    </details>
-    `;
+    </details>`;
   });
 
   html += `</div></section>`;
   return html;
 }
 
-// ==========================
-// ENTERPRISE SCHEMA MARKUP
-// ==========================
-
-export function generateEnterpriseSchema(options: {
-  articleTitle: string;
-  articleDescription: string;
-  author: string;
-  publishDate: string;
-  modifiedDate: string;
-  faqs?: FAQItem[];
-  videoUrl?: string;
-}): string {
-  const schemas = [];
-
-  // NewsArticle Schema
-  const newsArticle = {
-    '@context': 'https://schema.org',
-    '@type': 'NewsArticle',
-    headline: options.articleTitle,
-    description: options.articleDescription,
-    author: { '@type': 'Person', name: options.author },
-    datePublished: options.publishDate,
-    dateModified: options.modifiedDate,
-    publisher: {
-      '@type': 'Organization',
-      name: 'WP Optimizer Pro',
-      logo: 'https://wp-optimizer-pro.com/logo.png'
-    }
-  };
-  schemas.push(newsArticle);
-
-  // FAQPage Schema
-  if (options.faqs && options.faqs.length > 0) {
-    const faqPage = {
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: options.faqs.map(faq => ({
-        '@type': 'Question',
-        name: faq.question,
-        acceptedAnswer: { '@type': 'Answer', text: faq.answer }
-      }))
-    };
-    schemas.push(faqPage);
-  }
-
-  // VideoObject Schema
-  if (options.videoUrl) {
-    const videoObject = {
-      '@context': 'https://schema.org',
-      '@type': 'VideoObject',
-      name: options.articleTitle,
-      description: options.articleDescription,
-      url: options.videoUrl,
-      uploadDate: options.publishDate
-    };
-    schemas.push(videoObject);
-  }
-
-  // BreadcrumbList
-  const breadcrumbList = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://wp-optimizer-pro.com' },
-      { '@type': 'ListItem', position: 2, name: options.articleTitle, item: 'https://wp-optimizer-pro.com/article' }
-    ]
-  };
-  schemas.push(breadcrumbList);
-
-  return schemas.map(s => `<script type="application/ld+json">\n${JSON.stringify(s, null, 2)}\n</script>`).join('\n');
-}
-
-// ==========================
-// YOUTUBE VIDEO WITH SERPER API
-// ==========================
-
-export async function searchYouTubeVideoSerper(query: string, serperApiKey: string): Promise<any | null> {
-  try {
-    const response = await fetch('https://google.serper.dev/videos', {
-      method: 'POST',
-      headers: {
-        'X-API-KEY': serperApiKey,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ q: query, num: 5 })
-    });
-
-    if (!response.ok) return null;
-    const data = await response.json();
-    return data.videos?.[0] || null;
-  } catch (error) {
-    console.error('Serper API error:', error);
-    return null;
-  }
-}
-
-export function createYouTubeEmbed(videoUrl: string, title: string): string {
-  const videoId = videoUrl.includes('youtu.be') 
-    ? videoUrl.split('youtu.be/')[1]?.split('?')[0]
-    : new URL(videoUrl).searchParams.get('v');
-
-  if (!videoId) return '';
-
-  return `
-<figure class="youtube-embed" style="margin: 32px 0; position: relative; width: 100%; padding-bottom: 56.25%;">
-  <figcaption style="font-weight: 600; margin-bottom: 12px;">${title}</figcaption>
-  <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px;" src="https://www.youtube.com/embed/${videoId}" title="${title}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen loading="lazy"></iframe>
-</figure>
-`;
-}
-
-
-// ==========================
-// INTEGRATED YOUTUBE SOLUTION
-// ==========================
-export async function integrateYouTubeVideoIntoContent(
-  htmlContent: string,
-  articleTitle: string,
-  serperApiKey: string | undefined,
-  log?: (msg: string) => void
-): Promise<{ html: string; videoUrl?: string }> {
-  if (!serperApiKey) {
-    log?.(' No Serper API key provided — skipping YouTube integration');
-    return { html: htmlContent };
-  }
-
-  try {
-    log?.('Searching for relevant YouTube video...');
-    const video = await searchYouTubeVideoSerper(
-      articleTitle + ' tutorial guide demonstration',
-      serperApiKey
-    );
-
-    if (!video?.link) {
-      log?.(' No relevant YouTube video found');
-      return { html: htmlContent };
-    }
-
-    log?.(' Found video: ' + (video.title || 'Unknown'));
-    const videoEmbed = createYouTubeEmbed(video.link, 'Relevant Video: ' + articleTitle);
-
-    // Insert video after the first paragraph or before FAQ
-    const faqIndex = htmlContent.toLowerCase().indexOf('frequently asked');
-    const firstParagraphEnd = htmlContent.indexOf('</p>') + 4;
-    const insertPosition = faqIndex > 0 ? faqIndex : firstParagraphEnd;
-
-    const newHtml =
-      htmlContent.slice(0, insertPosition) +
-      '\n' +
-      videoEmbed +
-      '\n' +
-      htmlContent.slice(insertPosition);
-
-    log?.(' YouTube video embedded into content');
-    return { html: newHtml, videoUrl: video.link };
-  } catch (error: any) {
-    log?.(' YouTube integration failed: ' + error.message);
-    return { html: htmlContent };
-  }
-}
-
-// ==========================
-// REFERENCES SECTION
-// ==========================
-export interface ValidatedReference {
-  title: string;
-  url: string;
-  source?: string;
-  author?: string;
-}
-
-export function createReferencesSection(references: ValidatedReference[], title: string = 'References'): string {
-  if (!references || references.length === 0) return '';
-  
-  let html = `<section class="references-section" style="margin: 40px 0; background-color: #f9fafb; padding: 32px; border-radius: 12px; border-left: 4px solid #3b82f6;">`;
-  html += `<h2 style="color: #1f2937; font-size: 28px; font-weight: 700; margin-bottom: 24px;">📚 ${title}</h2>`;
-  html += `<div class="references-list">`;
-  
-  references.forEach((ref, index) => {
-    html += `<div class="reference-item" style="margin-bottom: 20px; padding: 16px; background-color: #ffffff; border-radius: 8px; border: 1px solid #e5e7eb;">`;
-    html += `<div style="display: flex; align-items: flex-start; gap: 12px;">`;
-    html += `<span style="color: #3b82f6; font-weight: 700; min-width: 24px;">${index + 1}.</span>`;
-    html += `<div style="flex: 1;">`;
-    html += `<a href="${ref.url}" target="_blank" rel="noopener noreferrer" style="color: #0ea5e9; text-decoration: none; font-weight: 600; font-size: 14px;">${ref.title}</a>`;
-    if (ref.source) {
-      html += `<div style="color: #6b7280; font-size: 12px; margin-top: 4px;">Source: ${ref.source}</div>`;
-    }
-    if (ref.author) {
-      html += `<div style="color: #9ca3af; font-size: 12px; margin-top: 2px;">Author: ${ref.author}</div>`;
-    }
-    html += `</div></div></div>`;
-  });
-  
-  html += `</div></section>`;
-  return html;
-}
-
+export default { createCTABox, createEnterpriseAccordion };
