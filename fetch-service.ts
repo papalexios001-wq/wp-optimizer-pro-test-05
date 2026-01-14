@@ -1008,12 +1008,12 @@ async function discoverAndValidateReferencesInternal(
     onProgress?.(`   ✅ Validated ${validatedRefs.length} authoritative references`);
     
     // Final sort: authorities first, then by year (newest first)
-    return validatedRefs.sort((a, b) => {
-        if (a.isAuthority && !b.isAuthority) return -1;
-        if (!a.isAuthority && b.isAuthority) return 1;
-        return parseInt(b.year) - parseInt(a.year);
-    });
-}
+return validatedRefs.sort((a, b) => {
+    if (a.isAuthority && !b.isAuthority) return -1;
+    if (!a.isAuthority && b.isAuthority) return 1;
+    return parseInt(String(b.year)) - parseInt(String(a.year));
+});
+
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 🧠 ENTITY GAP ANALYSIS — WITH DEDUPLICATION
