@@ -137,7 +137,7 @@ export interface ImprovementHistoryEntry {
 // GOD MODE PHASES — ALL PHASES
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export type GodModePhase = 
+export type GodModePhase = string;
     | 'idle'
     | 'initializing'
     | 'crawling'
