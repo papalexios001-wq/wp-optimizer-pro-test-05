@@ -2458,3 +2458,4 @@ export async function discoverInternalLinkTargets(
         return [];
     }
 }
+}
