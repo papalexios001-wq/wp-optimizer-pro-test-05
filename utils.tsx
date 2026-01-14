@@ -3,19 +3,13 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { 
-    ContentContract, 
-    QAValidationResult, 
-    SeoMetrics, 
-    InternalLinkTarget,
-    NeuronTerm,
-    EntityGapAnalysis,
-    ExistingContentAnalysis,
-    ValidatedReference,
-    HeadingInfo,
-    InternalLinkAddedItem,
-    InternalLinkInjectionResult,
-    createDefaultSeoMetrics
+    SeoMetrics, ContentContract, QAValidationResult, QASwarmResult, 
+    NeuronTerm, ExistingContentAnalysis, EntityGapAnalysis, InternalLinkTarget,
+    OpportunityScore, SerpLengthPolicy, ScoreBreakdown,
+    CURRENT_SCORE_WEIGHTS, QARuleContext, QADetectionResult,
+    InternalLinkResult, ValidatedReference, SiteContext, createDefaultSeoMetrics
 } from './types';
+
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 📌 VERSION & CONSTANTS
