@@ -2252,6 +2252,28 @@ async function generateWithGroq(
     return data.choices?.[0]?.message?.content || '';
 }
 
+
+
+// Add this function definition somewhere in the file BEFORE it's used:
+export function buildSystemPrompt(config: {
+    ctx?: SiteContext;
+    topic: string;
+    mode: string;
+    entityGapData?: EntityGapAnalysis;
+    neuronData?: NeuronAnalysisResult;
+    existingAnalysis?: ExistingContentAnalysis;
+    allFeedback?: string[];
+    targetKeyword?: string;
+    validatedReferences?: ValidatedReference[];
+    internalLinks?: InternalLinkTarget[];
+    geoConfig?: GeoTargetConfig;
+    attemptNumber?: number;
+}): string {
+    // Your existing implementation here
+    return ""; // placeholder
+}
+
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // 🔥🔥🔥 MAIN AI ORCHESTRATOR CLASS v26.0
 // ═══════════════════════════════════════════════════════════════════════════════
