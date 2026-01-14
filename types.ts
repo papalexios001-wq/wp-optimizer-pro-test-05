@@ -302,7 +302,7 @@ export interface InternalLinkTarget {
 export interface InternalLinkResult {
     url: string;
     anchorText: string;
-    relevanceScore?: number;
+    relevanceScore: number;
     position?: number;
     context?: string;
     matchType?: string;
@@ -312,7 +312,7 @@ export interface InternalLinkResult {
 export interface InternalLinkAddedItem {
     url: string;
     anchorText: string;
-    relevanceScore?: number;
+    relevanceScore: number;
     position?: number;
     context?: string;
     matchType?: string;
