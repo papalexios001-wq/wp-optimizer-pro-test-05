@@ -3029,7 +3029,7 @@ export default {
     orchestrator,
     
     // System prompt
-    buildSystemPrompt,
+    buildSystemPrompt: buildSystemPrompt,
     
     // Content generation helpers
     shouldIncludeYearInTitle,
