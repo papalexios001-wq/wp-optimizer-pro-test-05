@@ -755,6 +755,56 @@ export interface HumanWritingValidation {
     suggestions: string[];
 }
 
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 🔧 FACTORY FUNCTIONS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export function createDefaultSeoMetrics(): SeoMetrics {
+    return {
+        wordCount: 0,
+        contentDepth: 0,
+        readability: 0,
+        headingStructure: 0,
+        aeoScore: 0,
+        geoScore: 0,
+        eeatSignals: 0,
+        internalLinkScore: 0,
+        schemaDetected: false,
+        schemaTypes: [],
+        h2Count: 0,
+        h3Count: 0,
+        imageCount: 0,
+        faqCount: 0
+    };
+}
+
+export function createDefaultJobState(): JobState {
+    return {
+        status: 'idle',
+        phase: 'idle',
+        progress: 0,
+        attempts: 0,
+        logs: []
+    };
+}
+
+export function createDefaultGlobalStats(): GlobalStats {
+    return {
+        totalProcessed: 0,
+        totalImproved: 0,
+        totalFailed: 0,
+        totalWordsGenerated: 0,
+        avgScore: 0,
+        lastRunTime: 0,
+        successRate: 100
+    };
+}
+
+
+
+
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // 📤 DEFAULT EXPORTS
 // ═══════════════════════════════════════════════════════════════════════════════
