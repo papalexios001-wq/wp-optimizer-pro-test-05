@@ -1430,58 +1430,137 @@ OUTPUT: HTML only, starting with <h2>Conclusion</h2>.`;
     }
     
     async generateSingleShot(config: GenerateConfig, log: LogFunction): Promise<GenerationResult> {
-        const startTime = Date.now();
-        log(`🎨 SINGLE-SHOT GENERATION (fallback)`);
-        
-        const userPrompt = `Write a comprehensive ${CONTENT_TARGETS.TARGET_WORDS}+ word blog post about: "${config.topic}"
+    const startTime = Date.now();
+    log(`🎨 SINGLE-SHOT GENERATION (with visual components)`);
+    
+    const userPrompt = `Write a comprehensive ${CONTENT_TARGETS.TARGET_WORDS}+ word blog post about: "${config.topic}"
 
 Include:
 - 8-12 H2 sections with H3 subsections
 - Practical examples and tips
-- FAQ section with 8-10 questions
+- FAQ section with 8-10 questions and detailed answers
 - NO H1 tags (WordPress provides title)
 
 Output ONLY valid JSON with: title, metaDescription, slug, htmlContent, excerpt, faqs, wordCount`;
 
-        for (let attempt = 1; attempt <= 3; attempt++) {
-            log(`   📝 Attempt ${attempt}/3...`);
+    for (let attempt = 1; attempt <= 3; attempt++) {
+        log(`   📝 Attempt ${attempt}/3...`);
+        
+        try {
+            const response = await callLLM(
+                config.provider, config.apiKeys, config.model, userPrompt,
+                buildSystemPrompt({ topic: config.topic, targetWords: CONTENT_TARGETS.TARGET_WORDS }),
+                { temperature: 0.7 + (attempt - 1) * 0.05, maxTokens: 16000 },
+                TIMEOUTS.SINGLE_SHOT, log
+            );
             
-            try {
-                const response = await callLLM(
-                    config.provider, config.apiKeys, config.model, userPrompt,
-                    buildSystemPrompt({ topic: config.topic, targetWords: CONTENT_TARGETS.TARGET_WORDS }),
-                    { temperature: 0.7 + (attempt - 1) * 0.05, maxTokens: 16000 },
-                    TIMEOUTS.SINGLE_SHOT, log
-                );
+            const parsed = healJSON(response, log);
+            
+            if (parsed.success && parsed.data?.htmlContent) {
+                let rawContract = parsed.data as ContentContract;
                 
-                const parsed = healJSON(response, log);
+                // ═══════════════════════════════════════════════════════════
+                // 🔥🔥🔥 ADD VISUAL COMPONENTS (THIS WAS MISSING!)
+                // ═══════════════════════════════════════════════════════════
                 
-                if (parsed.success && parsed.data?.htmlContent) {
-                    let contract = parsed.data as ContentContract;
-                    contract.htmlContent = removeAllH1Tags(contract.htmlContent, log);
-                    contract.wordCount = countWords(contract.htmlContent);
+                log(`   🎨 Injecting visual components...`);
+                
+                const contentParts: string[] = [];
+                
+                // 1. Theme-Adaptive CSS
+                contentParts.push(THEME_ADAPTIVE_CSS);
+                contentParts.push('<div class="wpo-content">');
+                
+                // 2. Quick Answer Box
+                const quickAnswerText = `${config.topic} requires understanding key principles and applying proven strategies. This comprehensive guide covers everything from foundational concepts to advanced techniques, backed by expert insights and real-world examples.`;
+                contentParts.push(createQuickAnswerBox(quickAnswerText));
+                
+                // 3. Main Content (from LLM)
+                let mainContent = rawContract.htmlContent;
+                mainContent = removeAllH1Tags(mainContent, log);
+                
+                // Split content into sections and inject Pro Tips
+                const h2Matches = [...mainContent.matchAll(/<h2[^>]*>[\s\S]*?(?=<h2|$)/gi)];
+                
+                if (h2Matches.length > 0) {
+                    const proTips = [
+                        `Start with the fundamentals before moving to advanced techniques — mastery comes from a solid foundation.`,
+                        `Track your progress regularly and adjust your approach based on actual results, not assumptions.`,
+                        `Learn from industry experts and stay updated with the latest trends and best practices.`
+                    ];
                     
-                    if (contract.wordCount >= 2000) {
-                        log(`   ✅ Success: ${contract.wordCount} words`);
-                        return { contract, generationMethod: 'single-shot', attempts: attempt, totalTime: Date.now() - startTime };
-                    }
+                    h2Matches.forEach((match, index) => {
+                        contentParts.push(match[0]);
+                        
+                        // Add Pro Tip after every 3rd section
+                        if ((index + 1) % 3 === 0 && proTips[Math.floor(index / 3)]) {
+                            contentParts.push(createProTipBox(proTips[Math.floor(index / 3)]));
+                        }
+                        
+                        // Add Warning after section 5
+                        if (index === 4) {
+                            contentParts.push(createWarningBox(
+                                `Many beginners make the mistake of rushing through the fundamentals. Take your time to fully understand each concept before moving forward — it will save you significant time and frustration later.`,
+                                'Common Mistake to Avoid'
+                            ));
+                        }
+                    });
+                } else {
+                    // No H2s found, just add content directly
+                    contentParts.push(mainContent);
+                    contentParts.push(createProTipBox(`Focus on implementing what you learn. Knowledge without action produces zero results.`));
                 }
                 
-                log(`   ⚠️ Insufficient content, retrying...`);
-            } catch (err: any) {
-                log(`   ❌ Error: ${err.message}`);
+                // 4. Key Takeaways
+                const keyTakeaways = [
+                    `Understanding ${config.topic} requires both theoretical knowledge and practical application`,
+                    `Success depends on consistent effort and continuous learning`,
+                    `Expert guidance and proven frameworks accelerate results significantly`,
+                    `Regular assessment and optimization are essential for long-term success`,
+                    `Building a strong foundation enables advanced strategy implementation`
+                ];
+                contentParts.push(createKeyTakeaways(keyTakeaways));
+                
+                // 5. FAQ Accordion (if FAQs exist)
+                if (rawContract.faqs && rawContract.faqs.length > 0) {
+                    contentParts.push(createFAQAccordion(rawContract.faqs));
+                    log(`   ✅ FAQ accordion: ${rawContract.faqs.length} items`);
+                }
+                
+                // 6. Close wrapper
+                contentParts.push('</div>');
+                
+                // Assemble final content
+                const assembledContent = contentParts.filter(Boolean).join('\n\n');
+                
+                const finalContract: ContentContract = {
+                    ...rawContract,
+                    htmlContent: assembledContent,
+                    wordCount: countWords(assembledContent)
+                };
+                
+                if (finalContract.wordCount >= 2000) {
+                    log(`   ✅ Success: ${finalContract.wordCount} words with visual components`);
+                    return { 
+                        contract: finalContract, 
+                        generationMethod: 'single-shot', 
+                        attempts: attempt, 
+                        totalTime: Date.now() - startTime 
+                    };
+                }
             }
             
-            if (attempt < 3) await sleep(2000 * attempt);
+            log(`   ⚠️ Insufficient content, retrying...`);
+        } catch (err: any) {
+            log(`   ❌ Error: ${err.message}`);
         }
         
-        throw new Error('Content generation failed after 3 attempts');
+        if (attempt < 3) await sleep(2000 * attempt);
     }
     
-    async generate(config: GenerateConfig, log: LogFunction): Promise<GenerationResult> {
-        return this.generateSingleShot(config, log);
-    }
+    throw new Error('Content generation failed after 3 attempts');
 }
+
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 📤 EXPORTS
