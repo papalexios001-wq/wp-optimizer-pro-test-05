@@ -1431,10 +1431,48 @@ OUTPUT: HTML only, starting with <h2>Conclusion</h2>.`;
     }
     
     async generateSingleShot(config: GenerateConfig, log: LogFunction): Promise<GenerationResult> {
-    const startTime = Date.now();
-    log(`🎨 SINGLE-SHOT GENERATION (with visual components)`);
-    
-    const userPrompt = `Write a comprehensive ${CONTENT_TARGETS.TARGET_WORDS}+ word blog post about: "${config.topic}"
+        const startTime = Date.now();
+        log(`🎨 SINGLE-SHOT GENERATION (with ALL features)`);
+        
+        let youtubeVideo: YouTubeVideoData | null = null;
+        let references: DiscoveredReference[] = [];
+        
+        // ═══════════════════════════════════════════════════════════════
+        // PARALLEL: YouTube + References Discovery
+        // ═══════════════════════════════════════════════════════════════
+        
+        const youtubePromise = config.apiKeys?.serper ? (async () => {
+            try {
+                log(`   🎬 Searching YouTube...`);
+                youtubeVideo = await searchYouTubeVideo(config.topic, config.apiKeys.serper, log);
+            } catch (e: any) {
+                log(`   ⚠️ YouTube search failed: ${e.message}`);
+            }
+        })() : Promise.resolve();
+        
+        const referencesPromise = config.apiKeys?.serper ? (async () => {
+            try {
+                log(`   📚 Discovering references...`);
+                if (config.validatedReferences && config.validatedReferences.length >= 5) {
+                    references = config.validatedReferences.map(ref => ({
+                        url: ref.url,
+                        title: ref.title,
+                        source: ref.source || extractSourceName(ref.url),
+                        snippet: ref.snippet,
+                        year: ref.year,
+                        authorityScore: ref.isAuthority ? 90 : 70,
+                        favicon: `https://www.google.com/s2/favicons?domain=${extractDomain(ref.url)}&sz=32`
+                    }));
+                    log(`   ✅ Using ${references.length} pre-validated references`);
+                } else {
+                    references = await discoverReferences(config.topic, config.apiKeys.serper, { targetCount: 10, minAuthorityScore: 60 }, log);
+                }
+            } catch (e: any) {
+                log(`   ⚠️ Reference discovery failed: ${e.message}`);
+            }
+        })() : Promise.resolve();
+        
+        const userPrompt = `Write a comprehensive ${CONTENT_TARGETS.TARGET_WORDS}+ word blog post about: "${config.topic}"
 
 Include:
 - 8-12 H2 sections with H3 subsections
@@ -1444,124 +1482,160 @@ Include:
 
 Output ONLY valid JSON with: title, metaDescription, slug, htmlContent, excerpt, faqs, wordCount`;
 
-    for (let attempt = 1; attempt <= 3; attempt++) {
-        log(`   📝 Attempt ${attempt}/3...`);
-        
-        try {
-            const response = await callLLM(
-                config.provider, config.apiKeys, config.model, userPrompt,
-                buildSystemPrompt({ topic: config.topic, targetWords: CONTENT_TARGETS.TARGET_WORDS }),
-                { temperature: 0.7 + (attempt - 1) * 0.05, maxTokens: 16000 },
-                TIMEOUTS.SINGLE_SHOT, log
-            );
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            log(`   📝 Attempt ${attempt}/3...`);
             
-            const parsed = healJSON(response, log);
-            
-            if (parsed.success && parsed.data?.htmlContent) {
-                let rawContract = parsed.data as ContentContract;
+            try {
+                const response = await callLLM(
+                    config.provider, config.apiKeys, config.model, userPrompt,
+                    buildSystemPrompt({ topic: config.topic, targetWords: CONTENT_TARGETS.TARGET_WORDS }),
+                    { temperature: 0.7 + (attempt - 1) * 0.05, maxTokens: 16000 },
+                    TIMEOUTS.SINGLE_SHOT, log
+                );
                 
-                // ═══════════════════════════════════════════════════════════
-                // 🔥🔥🔥 ADD VISUAL COMPONENTS (THIS WAS MISSING!)
-                // ═══════════════════════════════════════════════════════════
+                const parsed = healJSON(response, log);
                 
-                log(`   🎨 Injecting visual components...`);
-                
-                const contentParts: string[] = [];
-                
-                // 1. Theme-Adaptive CSS
-                contentParts.push(THEME_ADAPTIVE_CSS);
-                contentParts.push('<div class="wpo-content">');
-                
-                // 2. Quick Answer Box
-                const quickAnswerText = `${config.topic} requires understanding key principles and applying proven strategies. This comprehensive guide covers everything from foundational concepts to advanced techniques, backed by expert insights and real-world examples.`;
-                contentParts.push(createQuickAnswerBox(quickAnswerText));
-                
-                // 3. Main Content (from LLM)
-                let mainContent = rawContract.htmlContent;
-                mainContent = removeAllH1Tags(mainContent, log);
-                
-                // Split content into sections and inject Pro Tips
-                const h2Matches = [...mainContent.matchAll(/<h2[^>]*>[\s\S]*?(?=<h2|$)/gi)];
-                
-                if (h2Matches.length > 0) {
-                    const proTips = [
-                        `Start with the fundamentals before moving to advanced techniques — mastery comes from a solid foundation.`,
-                        `Track your progress regularly and adjust your approach based on actual results, not assumptions.`,
-                        `Learn from industry experts and stay updated with the latest trends and best practices.`
-                    ];
+                if (parsed.success && parsed.data?.htmlContent) {
+                    let rawContract = parsed.data as ContentContract;
                     
-                    h2Matches.forEach((match, index) => {
-                        contentParts.push(match[0]);
+                    // Wait for parallel tasks
+                    await Promise.all([youtubePromise, referencesPromise]);
+                    
+                    // ═══════════════════════════════════════════════════════════
+                    // 🎨 ASSEMBLE CONTENT WITH ALL VISUAL COMPONENTS
+                    // ═══════════════════════════════════════════════════════════
+                    
+                    log(`   🎨 Injecting visual components...`);
+                    
+                    const contentParts: string[] = [];
+                    
+                    // 1. Theme-Adaptive CSS
+                    contentParts.push(THEME_ADAPTIVE_CSS);
+                    contentParts.push('<div class="wpo-content">');
+                    
+                    // 2. Quick Answer Box
+                    const quickAnswerText = `${config.topic} requires understanding key principles and applying proven strategies. This comprehensive guide covers everything from foundational concepts to advanced techniques, backed by expert insights and real-world examples.`;
+                    contentParts.push(createQuickAnswerBox(quickAnswerText));
+                    
+                    // 3. YouTube Video (if found)
+                    if (youtubeVideo) {
+                        contentParts.push(createYouTubeEmbed(youtubeVideo));
+                        log(`   ✅ YouTube video embedded: "${youtubeVideo.title.substring(0, 40)}..."`);
+                    }
+                    
+                    // 4. Main Content (from LLM)
+                    let mainContent = rawContract.htmlContent;
+                    mainContent = removeAllH1Tags(mainContent, log);
+                    
+                    // Split content into sections and inject Pro Tips
+                    const h2Matches = [...mainContent.matchAll(/<h2[^>]*>[\s\S]*?(?=<h2|$)/gi)];
+                    
+                    if (h2Matches.length > 0) {
+                        const proTips = [
+                            `Start with the fundamentals before moving to advanced techniques — mastery comes from a solid foundation.`,
+                            `Track your progress regularly and adjust your approach based on actual results, not assumptions.`,
+                            `Learn from industry experts and stay updated with the latest trends and best practices.`
+                        ];
                         
-                        // Add Pro Tip after every 3rd section
-                        if ((index + 1) % 3 === 0 && proTips[Math.floor(index / 3)]) {
-                            contentParts.push(createProTipBox(proTips[Math.floor(index / 3)]));
-                        }
-                        
-                        // Add Warning after section 5
-                        if (index === 4) {
-                            contentParts.push(createWarningBox(
-                                `Many beginners make the mistake of rushing through the fundamentals. Take your time to fully understand each concept before moving forward — it will save you significant time and frustration later.`,
-                                'Common Mistake to Avoid'
-                            ));
-                        }
-                    });
-                } else {
-                    // No H2s found, just add content directly
-                    contentParts.push(mainContent);
-                    contentParts.push(createProTipBox(`Focus on implementing what you learn. Knowledge without action produces zero results.`));
-                }
-                
-                // 4. Key Takeaways
-                const keyTakeaways = [
-                    `Understanding ${config.topic} requires both theoretical knowledge and practical application`,
-                    `Success depends on consistent effort and continuous learning`,
-                    `Expert guidance and proven frameworks accelerate results significantly`,
-                    `Regular assessment and optimization are essential for long-term success`,
-                    `Building a strong foundation enables advanced strategy implementation`
-                ];
-                contentParts.push(createKeyTakeaways(keyTakeaways));
-                
-                // 5. FAQ Accordion (if FAQs exist)
-                if (rawContract.faqs && rawContract.faqs.length > 0) {
-                    contentParts.push(createFAQAccordion(rawContract.faqs));
-                    log(`   ✅ FAQ accordion: ${rawContract.faqs.length} items`);
-                }
-                
-                // 6. Close wrapper
-                contentParts.push('</div>');
-                
-                // Assemble final content
-                const assembledContent = contentParts.filter(Boolean).join('\n\n');
-                
-                const finalContract: ContentContract = {
-                    ...rawContract,
-                    htmlContent: assembledContent,
-                    wordCount: countWords(assembledContent)
-                };
-                
-                if (finalContract.wordCount >= 2000) {
-                    log(`   ✅ Success: ${finalContract.wordCount} words with visual components`);
-                    return { 
-                        contract: finalContract, 
-                        generationMethod: 'single-shot', 
-                        attempts: attempt, 
-                        totalTime: Date.now() - startTime 
+                        h2Matches.forEach((match, index) => {
+                            contentParts.push(match[0]);
+                            
+                            // Add Pro Tip after every 3rd section
+                            if ((index + 1) % 3 === 0 && proTips[Math.floor(index / 3)]) {
+                                contentParts.push(createProTipBox(proTips[Math.floor(index / 3)]));
+                            }
+                            
+                            // Add Warning after section 5
+                            if (index === 4) {
+                                contentParts.push(createWarningBox(
+                                    `Many beginners make the mistake of rushing through the fundamentals. Take your time to fully understand each concept before moving forward — it will save you significant time and frustration later.`,
+                                    'Common Mistake to Avoid'
+                                ));
+                            }
+                        });
+                    } else {
+                        // No H2s found, just add content directly
+                        contentParts.push(mainContent);
+                        contentParts.push(createProTipBox(`Focus on implementing what you learn. Knowledge without action produces zero results.`));
+                    }
+                    
+                    // 5. Key Takeaways
+                    const keyTakeaways = [
+                        `Understanding ${config.topic} requires both theoretical knowledge and practical application`,
+                        `Success depends on consistent effort and continuous learning`,
+                        `Expert guidance and proven frameworks accelerate results significantly`,
+                        `Regular assessment and optimization are essential for long-term success`,
+                        `Building a strong foundation enables advanced strategy implementation`
+                    ];
+                    contentParts.push(createKeyTakeaways(keyTakeaways));
+                    
+                    // 6. FAQ Accordion (if FAQs exist)
+                    if (rawContract.faqs && rawContract.faqs.length > 0) {
+                        contentParts.push(createFAQAccordion(rawContract.faqs));
+                        log(`   ✅ FAQ accordion: ${rawContract.faqs.length} items`);
+                    }
+                    
+                    // 7. References Section
+                    if (references.length > 0) {
+                        contentParts.push(createReferencesSection(references));
+                        log(`   ✅ References section: ${references.length} sources`);
+                    }
+                    
+                    // 8. Close wrapper
+                    contentParts.push('</div>');
+                    
+                    // Assemble final content
+                    let assembledContent = contentParts.filter(Boolean).join('\n\n');
+                    
+                    // ═══════════════════════════════════════════════════════════
+                    // 🔗 INTERNAL LINKS INJECTION
+                    // ═══════════════════════════════════════════════════════════
+                    
+                    if (config.internalLinks && config.internalLinks.length > 0) {
+                        log(`   🔗 Injecting internal links...`);
+                        const linkResult = injectInternalLinksDistributed(
+                            assembledContent,
+                            config.internalLinks,
+                            config.topic,
+                            log
+                        );
+                        assembledContent = linkResult.html;
+                    }
+                    
+                    const finalContract: ContentContract = {
+                        ...rawContract,
+                        htmlContent: assembledContent,
+                        wordCount: countWords(assembledContent)
                     };
+                    
+                    if (finalContract.wordCount >= 2000) {
+                        log(`   ✅ Success: ${finalContract.wordCount} words with ALL components`);
+                        return { 
+                            contract: finalContract, 
+                            generationMethod: 'single-shot', 
+                            attempts: attempt, 
+                            totalTime: Date.now() - startTime,
+                            youtubeVideo: youtubeVideo || undefined,
+                            references
+                        };
+                    }
                 }
+                
+                log(`   ⚠️ Insufficient content, retrying...`);
+            } catch (err: any) {
+                log(`   ❌ Error: ${err.message}`);
             }
             
-            log(`   ⚠️ Insufficient content, retrying...`);
-        } catch (err: any) {
-            log(`   ❌ Error: ${err.message}`);
+            if (attempt < 3) await sleep(2000 * attempt);
         }
         
-        if (attempt < 3) await sleep(2000 * attempt);
+        throw new Error('Content generation failed after 3 attempts');
     }
     
-    throw new Error('Content generation failed after 3 attempts');
+    async generate(config: GenerateConfig, log: LogFunction): Promise<GenerationResult> {
+        return this.generateSingleShot(config, log);
+    }
 }
-}  // ← 🔥🔥🔥 ADD THIS LINE — IT CLOSES THE CLASS!
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 📤 EXPORTS
@@ -1587,3 +1661,4 @@ export const OPENROUTER_MODELS = [
 ];
 
 export default orchestrator;
+
