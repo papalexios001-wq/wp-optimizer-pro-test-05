@@ -1054,19 +1054,7 @@ const App: React.FC = () => {
             log(`✅ Phase 5 Complete: ${bestWordCount.toLocaleString()} words | Score: ${bestScore}%`);
 
 
-            // ═══════════════════════════════════════════════════════════════════════════════
-// 🎬 PHASE 5.5: YOUTUBE VIDEO INTEGRATION (After content synthesis)
-// Add this AFTER Phase 5 content synthesis and BEFORE Phase 6 publishing
-// ═══════════════════════════════════════════════════════════════════════════════
-
-// Import at the top of App.tsx
-import { 
-    searchYouTubeVideo, 
-    generateYouTubeEmbed,
-    YouTubeVideoData 
-} from './lib/youtube-service';
-
-// ... inside executeGodMode, after content synthesis succeeds:
+            
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 🎬 PHASE 5.5: YOUTUBE VIDEO INTEGRATION
