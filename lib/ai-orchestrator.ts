@@ -14,7 +14,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { GoogleGenAI } from '@google/genai';
-import { 
+import {
     ContentContract,     
     GenerateConfig, 
     SiteContext, 
