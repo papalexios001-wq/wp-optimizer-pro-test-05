@@ -876,6 +876,7 @@ export function injectInternalLinksDistributed(
 /**
  * SOTA TF-IDF based contextual anchor text finder
  * Generates 3-8 word high-quality anchor text that naturally fits the content
+    */
 function findContextualAnchorText(
   paragraphText: string,
   targetKeywords: string[],
