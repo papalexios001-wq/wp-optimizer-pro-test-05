@@ -858,7 +858,157 @@ export function injectInternalLinksDistributed(
     html: string,
     linkTargets: InternalLinkTarget[],
     currentUrl: string,
-    log: LogFunction
+    // ═══════════════════════════════════════════════════════════════════════════════
+// 🎯 SOTA CONTEXTUAL ANCHOR TEXT ENGINE - Enterprise Grade TF-IDF Implementation
+// ═══════════════════════════════════════════════════════════════════════════════
+
+interface AnchorCandidate {
+  phrase: string;
+  score: number;
+  startIndex: number;
+  endIndex: number;
+  contextRelevance: number;
+  grammarScore: number;
+}
+
+/**
+ * SOTA TF-IDF based contextual anchor text finder
+ * Generates 3-8 word high-quality anchor text that naturally fits the content
+ */
+function findContextualAnchorText(
+  paragraphText: string,
+  targetKeywords: string[],
+  targetTitle: string,
+  log: LogFunction
+): AnchorCandidate | null {
+  const MIN_WORDS = 3;
+  const MAX_WORDS = 8;
+  const MIN_SCORE = 0.3;
+  
+  // Normalize text for matching
+  const normalizedText = paragraphText.toLowerCase();
+  const normalizedTitle = targetTitle.toLowerCase();
+  const normalizedKeywords = targetKeywords.map(k => k.toLowerCase());
+  
+  // Extract all potential phrases (3-8 words)
+  const words = paragraphText.split(/\s+/).filter(w => w.length > 0);
+  const candidates: AnchorCandidate[] = [];
+  
+  for (let i = 0; i < words.length; i++) {
+    for (let len = MIN_WORDS; len <= MAX_WORDS && i + len <= words.length; len++) {
+      const phraseWords = words.slice(i, i + len);
+      const phrase = phraseWords.join(' ');
+      const normalizedPhrase = phrase.toLowerCase();
+      
+      // Skip if phrase contains HTML tags or special characters
+      if (/<[^>]+>/.test(phrase) || /[\[\]{}|\\]/.test(phrase)) continue;
+      
+      // Skip if phrase starts/ends with stop words
+      const stopWords = ['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by'];
+      const firstWord = phraseWords[0].toLowerCase().replace(/[^a-z]/g, '');
+      const lastWord = phraseWords[phraseWords.length - 1].toLowerCase().replace(/[^a-z]/g, '');
+      if (stopWords.includes(firstWord) || stopWords.includes(lastWord)) continue;
+      
+      // Calculate TF-IDF inspired relevance score
+      let keywordScore = 0;
+      let titleScore = 0;
+      
+      // Check keyword matches (TF component)
+      for (const keyword of normalizedKeywords) {
+        if (normalizedPhrase.includes(keyword)) {
+          keywordScore += 0.4;
+        } else {
+          // Partial word matching for compound keywords
+          const keywordParts = keyword.split(/[\s-_]+/);
+          const matchedParts = keywordParts.filter(part => 
+            part.length > 3 && normalizedPhrase.includes(part)
+          );
+          keywordScore += (matchedParts.length / keywordParts.length) * 0.25;
+        }
+      }
+      
+      // Check title word matches
+      const titleWords = normalizedTitle.split(/\s+/).filter(w => w.length > 3);
+      for (const titleWord of titleWords) {
+        if (normalizedPhrase.includes(titleWord)) {
+          titleScore += 0.15;
+        }
+      }
+      
+      // Grammar quality score
+      let grammarScore = 1.0;
+      // Prefer phrases that form complete noun phrases
+      const hasNounIndicator = /(?:ing|tion|ment|ness|ity|the\s+\w+)$/i.test(phrase);
+      if (hasNounIndicator) grammarScore += 0.1;
+      
+      // Penalize phrases ending with prepositions
+      if (/\s(?:of|in|on|at|to|for|with|by)$/i.test(phrase)) grammarScore -= 0.3;
+      
+      // Context relevance - prefer phrases in the middle of sentences
+      const phraseIndex = paragraphText.indexOf(phrase);
+      const contextRelevance = phraseIndex > 20 && phraseIndex < paragraphText.length - 20 ? 1.0 : 0.8;
+      
+      const totalScore = (keywordScore + titleScore) * grammarScore * contextRelevance;
+      
+      if (totalScore >= MIN_SCORE) {
+        candidates.push({
+          phrase,
+          score: totalScore,
+          startIndex: phraseIndex,
+          endIndex: phraseIndex + phrase.length,
+          contextRelevance,
+          grammarScore
+        });
+      }
+    }
+  }
+  
+  // Sort by score and return best candidate
+  candidates.sort((a, b) => b.score - a.score);
+  
+  if (candidates.length > 0) {
+    const best = candidates[0];
+    log(`🎯 SOTA Anchor: "${best.phrase}" (score: ${best.score.toFixed(2)}, grammar: ${best.grammarScore.toFixed(2)})`);
+    return best;
+  }
+  
+  return null;
+}
+
+/**
+ * Extract semantic keywords from target page title and URL
+ */
+function extractTargetKeywords(title: string, url: string): string[] {
+  const keywords: string[] = [];
+  
+  // Extract from title
+  const titleWords = title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .split(/\s+/)
+    .filter(w => w.length > 3);
+  keywords.push(...titleWords);
+  
+  // Extract from URL slug
+  const urlMatch = url.match(/\/([^/]+)\/?$/);
+  if (urlMatch) {
+    const slug = urlMatch[1]
+      .replace(/[-_]/g, ' ')
+      .split(/\s+/)
+      .filter(w => w.length > 3);
+    keywords.push(...slug);
+  }
+  
+  // Remove duplicates and common words
+  const commonWords = ['best', 'guide', 'tips', 'how', 'what', 'why', 'top', 'complete', 'ultimate'];
+  return [...new Set(keywords)].filter(k => !commonWords.includes(k));
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// END OF SOTA CONTEXTUAL ANCHOR ENGINE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+log: LogFunction
 ): { html: string; linksAdded: InternalLinkResult[]; totalLinks: number } {
     
     // ═══════════════════════════════════════════════════════════════
@@ -1008,13 +1158,12 @@ export function injectInternalLinksDistributed(
             anchorsAttempted++;
             
             // Try to find anchor text
-            const anchorText = findAnchorTextWithDebug(para.text, target, log, anchorsAttempted <= 3);
-            
+                    // 🎯 SOTA: Use enterprise-grade contextual anchor text engine
+        const targetKeywords = extractTargetKeywords(target.title || '', target.url);
+        const anchorCandidate = findContextualAnchorText(para.text, targetKeywords, target.title || '', log);
+        const anchorText = anchorCandidate ? anchorCandidate.phrase : null;
             if (anchorText && anchorText.length >= 4) {
-                // Verify anchor exists in paragraph
-                if (para.text.toLowerCase().includes(anchorText.toLowerCase())) {
                     anchorsMatched++;
-                    
                     const link = `<a href="${escapeHtml(target.url)}" title="${escapeHtml(target.title)}">${anchorText}</a>`;
                     const escapedAnchor = anchorText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                     const anchorRegex = new RegExp(`\\b${escapedAnchor}\\b`, 'i');
@@ -1817,16 +1966,16 @@ OUTPUT: HTML only, starting with <h2>Conclusion</h2>.`;
             // Quick Answer
             contentParts.push(createQuickAnswerBox(quickAnswerText));
             
-            // YouTube Video (if found)
-            if (youtubeVideo) {
-                contentParts.push(createYouTubeEmbed(youtubeVideo));
-                log(`   ✅ YouTube video embedded`);
-            }
-            
             // Sections with Pro Tips interspersed
             sections.forEach((section, index) => {
                 contentParts.push(section);
-                
+
+
+                      // 🎬 YouTube Video - AFTER FIRST H2 (enterprise-grade placement)
+      if (index === 0 && youtubeVideo) {
+        contentParts.push(createYouTubeEmbed(youtubeVideo));
+        log('✅ YouTube video embedded after first H2 section');
+      }
                 // Add Pro Tip after every 3rd section
                 if ((index + 1) % 3 === 0 && proTips[Math.floor(index / 3)]) {
                     contentParts.push(createProTipBox(proTips[Math.floor(index / 3)]));
