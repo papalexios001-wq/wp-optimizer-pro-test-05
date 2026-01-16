@@ -869,12 +869,13 @@ export function injectInternalLinksDistributed(
     html: string,
     linkTargets: InternalLinkTarget[],
     currentUrl: string,
+      log: LogFunction
+    ): { html: string; linksAdded: InternalLinkResult[]; totalLinks: number } {
 
-    ): InternalLinkResult {
+    
 /**
  * SOTA TF-IDF based contextual anchor text finder
  * Generates 3-8 word high-quality anchor text that naturally fits the content
- */
 function findContextualAnchorText(
   paragraphText: string,
   targetKeywords: string[],
@@ -1008,11 +1009,7 @@ function extractTargetKeywords(title: string, url: string): string[] {
 // END OF SOTA CONTEXTUAL ANCHOR ENGINE
 // ═══════════════════════════════════════════════════════════════════════════════
 
-log: LogFunction
-): { html: string; linksAdded: InternalLinkResult[]; totalLinks: number } {
     
-    // ═══════════════════════════════════════════════════════════════
-    // DEBUG: Log all inputs
     // ═══════════════════════════════════════════════════════════════
     log(`   🔗 ═══════════════════════════════════════════════════════`);
     log(`   🔗 INTERNAL LINK INJECTION — DEBUG MODE`);
