@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════════════
-// WP OPTIMIZER PRO v27.0 — ENTERPRISE SOTA AI ORCHESTRATOR
+// WP OPTIMIZER PRO v27.1.0 — ENTERPRISE SOTA AI ORCHESTRATOR (FIXED)
 // ═══════════════════════════════════════════════════════════════════════════════
 // 
 // COMPLETE FEATURE SET:
@@ -33,7 +33,7 @@ import {
 // 📌 VERSION & CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export const AI_ORCHESTRATOR_VERSION = "27.0.0";
+export const AI_ORCHESTRATOR_VERSION = "27.1.0";
 
 const TIMEOUTS = {
     OUTLINE_GENERATION: 60000,
@@ -245,7 +245,6 @@ export function createQuickAnswerBox(answer: string, title: string = 'Quick Answ
 </div>`;
 }
 
-
 export function createProTipBox(tip: string, title: string = 'Pro Tip'): string {
     return `
 <div class="wpo-box" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 20px; padding: 28px; margin: 36px 0; color: white; box-shadow: 0 16px 32px rgba(17,153,142,0.25);">
@@ -261,7 +260,6 @@ export function createProTipBox(tip: string, title: string = 'Pro Tip'): string 
 </div>`;
 }
 
-
 export function createWarningBox(warning: string, title: string = 'Important'): string {
     return `
 <div class="wpo-box" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 20px; padding: 28px; margin: 36px 0; color: white; box-shadow: 0 16px 32px rgba(245,87,108,0.25);">
@@ -276,7 +274,6 @@ export function createWarningBox(warning: string, title: string = 'Important'): 
     </div>
 </div>`;
 }
-
 
 export function createExpertQuoteBox(quote: string, author: string, title?: string): string {
     return `
@@ -318,7 +315,6 @@ export function createKeyTakeaways(takeaways: string[]): string {
 </div>`;
 }
 
-
 export function createFAQAccordion(faqs: Array<{ question: string; answer: string }>): string {
     if (!faqs || faqs.length === 0) return '';
     
@@ -357,11 +353,6 @@ export function createFAQAccordion(faqs: Array<{ question: string; answer: strin
 </section>`;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// 🎨 BEAUTIFUL VISUAL COMPONENTS (12 TOTAL)
-// ═══════════════════════════════════════════════════════════════════════════════
-
-
 export function createCalloutBox(text: string, type: 'info' | 'success' | 'warning' | 'error' = 'info'): string {
     const configs = {
         info: { bg: 'rgba(59,130,246,0.08)', border: '#3b82f6', icon: 'ℹ️', label: 'Info' },
@@ -382,7 +373,6 @@ export function createCalloutBox(text: string, type: 'info' | 'success' | 'warni
     </div>
 </div>`;
 }
-
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 🎬 YOUTUBE VIDEO EMBED
@@ -413,7 +403,7 @@ export function createYouTubeEmbed(video: YouTubeVideoData): string {
                 <h4 style="font-size: 15px; font-weight: 700; margin: 0 0 4px 0; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(video.title)}</h4>
                 <div style="display: flex; align-items: center; gap: 12px; font-size: 12px; opacity: 0.6;">
                     <span>📺 ${escapeHtml(video.channel)}</span>
-                    <span>👁️ ${video.views.toLocaleString()} views</span>
+                    <span>👁️ ${video.views?.toLocaleString() || 0} views</span>
                     ${video.duration ? `<span>⏱️ ${escapeHtml(video.duration)}</span>` : ''}
                 </div>
             </div>
@@ -467,10 +457,8 @@ export function createReferencesSection(references: DiscoveredReference[]): stri
 </section>`;
 }
 
-
-
 // ═══════════════════════════════════════════════════════════════════════════════
-// 🎨 NEW VISUAL COMPONENTS (7 ADDITIONAL — TOTAL 12+)
+// 🎨 ADDITIONAL VISUAL COMPONENTS
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export function createDataTable(title: string, headers: string[], rows: string[][], sourceNote?: string): string {
@@ -637,7 +625,6 @@ export function createDefinitionBox(term: string, definition: string): string {
 </div>`;
 }
 
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // 🎬 YOUTUBE VIDEO DISCOVERY
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -671,7 +658,7 @@ export async function searchYouTubeVideo(
     serperApiKey: string,
     log: LogFunction
 ): Promise<YouTubeVideoData | null> {
-    log(`🎬 Searching YouTube for: "${topic.substring(0, 50)}..."`);
+    log(`   🎬 Searching YouTube for: "${topic.substring(0, 50)}..."`);
     
     const queries = [`${topic} tutorial guide`, `${topic} explained ${currentYear}`];
     const allVideos: YouTubeVideoData[] = [];
@@ -700,7 +687,6 @@ export async function searchYouTubeVideo(
                 const views = parseViewCount(video.views);
                 if (views < 10000) continue;
                 
-                // Calculate relevance score
                 const titleLower = (video.title || '').toLowerCase();
                 const topicWords = topic.toLowerCase().split(/\s+/).filter(w => w.length > 3);
                 const matchingWords = topicWords.filter(w => titleLower.includes(w)).length;
@@ -786,7 +772,7 @@ export async function discoverReferences(
 ): Promise<DiscoveredReference[]> {
     const { targetCount = 10, minAuthorityScore = 60 } = options;
     
-    log(`📚 Discovering references for: "${topic.substring(0, 40)}..."`);
+    log(`   📚 Discovering references for: "${topic.substring(0, 40)}..."`);
     
     const allRefs: DiscoveredReference[] = [];
     const queries = [
@@ -819,7 +805,6 @@ export async function discoverReferences(
                 if (authorityScore < minAuthorityScore) continue;
                 if (allRefs.some(r => r.url === result.link)) continue;
                 
-                // Extract year from text
                 const yearMatch = (result.title + ' ' + (result.snippet || '')).match(/\b(20[0-2][0-9])\b/);
                 
                 allRefs.push({
@@ -847,11 +832,8 @@ export async function discoverReferences(
     return sorted;
 }
 
-
-
-
 // ═══════════════════════════════════════════════════════════════════════════════
-// 🔗 INTERNAL LINK INJECTION — ENTERPRISE GRADE WITH FULL DEBUG
+// 🔗 INTERNAL LINK INJECTION — ENTERPRISE GRADE
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export function injectInternalLinksDistributed(
@@ -925,8 +907,6 @@ export function injectInternalLinksDistributed(
             });
         }
         
-        log(`      → Section ${partIndex}: Found ${paragraphs.length} paragraphs`);
-        
         for (const para of paragraphs) {
             if (sectionLinksAdded >= LINK_CONFIG.MAX_PER_SECTION) break;
             if (totalLinksAdded >= LINK_CONFIG.MAX_TOTAL) break;
@@ -939,23 +919,20 @@ export function injectInternalLinksDistributed(
             }
             
             const target = availableTargets[targetIndex];
-            const anchorText = findAnchorTextWithDebug(para.plainText, target, log, totalLinksAdded < 3);
+            const anchorText = findAnchorText(para.plainText, target, log, totalLinksAdded < 3);
             
             if (anchorText && anchorText.length >= 4) {
                 if (para.plainText.toLowerCase().includes(anchorText.toLowerCase())) {
                     const link = `<a href="${escapeHtml(target.url)}" title="${escapeHtml(target.title)}">${anchorText}</a>`;
                     
-                    // ✅ SAFE REPLACEMENT METHOD
                     const escapedAnchor = anchorText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                     const simpleRegex = new RegExp(`\\b${escapedAnchor}\\b`, 'i');
                     
-                    // Check if match exists and is not inside HTML tag
                     const matchResult = para.full.match(simpleRegex);
                     if (matchResult) {
                         const matchIndex = para.full.search(simpleRegex);
                         const beforeMatch = para.full.substring(0, matchIndex);
                         
-                        // Count unclosed < before match position
                         const openBrackets = (beforeMatch.match(/<(?![^>]*>)/g) || []).length;
                         const closeBrackets = (beforeMatch.match(/>/g) || []).length;
                         const insideTag = openBrackets > closeBrackets;
@@ -976,11 +953,7 @@ export function injectInternalLinksDistributed(
                                 lastLinkWordPos = paraWordPos;
                                 
                                 log(`      ✅ Link ${totalLinksAdded}: "${anchorText}" → ${target.url.substring(0, 40)}...`);
-                            } else {
-                                log(`      ⚠️ Replacement failed for: "${anchorText}"`);
                             }
-                        } else {
-                            log(`      ⚠️ Anchor "${anchorText}" is inside HTML tag — skipped`);
                         }
                     }
                 }
@@ -1001,30 +974,24 @@ export function injectInternalLinksDistributed(
         totalLinks: totalLinksAdded
     };
 }
+
 // ═══════════════════════════════════════════════════════════════════════════════
-// 🔍 ANCHOR TEXT FINDER — WITH DEBUG
+// 🔍 ANCHOR TEXT FINDER
 // ═══════════════════════════════════════════════════════════════════════════════
 
-function findAnchorTextWithDebug(
+function findAnchorText(
     text: string, 
     target: InternalLinkTarget, 
     log: LogFunction,
     verbose: boolean = false
 ): string {
     if (!text || !target?.title) {
-        if (verbose) log(`         → findAnchor: Missing text or title`);
         return '';
     }
     
     const textLower = text.toLowerCase();
     const titleLower = target.title.toLowerCase();
     
-    if (verbose) {
-        log(`         → findAnchor for: "${target.title.substring(0, 40)}..."`);
-        log(`         → Paragraph preview: "${text.substring(0, 60)}..."`);
-    }
-    
-    // Stop words - never use as standalone anchors
     const stopWords = new Set([
         'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 
         'with', 'by', 'from', 'is', 'are', 'was', 'were', 'be', 'been', 'have', 
@@ -1043,25 +1010,16 @@ function findAnchorTextWithDebug(
         'begin', 'seem', 'help', 'show', 'hear', 'play', 'run', 'move', 'live'
     ]);
     
-    // Extract meaningful keywords from title
     const titleWords = titleLower
         .replace(/[^a-z0-9\s]/g, ' ')
         .split(/\s+/)
         .filter(w => w.length >= 3 && !stopWords.has(w));
     
     if (titleWords.length === 0) {
-        if (verbose) log(`         → No usable title words found`);
         return '';
     }
     
-    if (verbose) {
-        log(`         → Title keywords: ${titleWords.slice(0, 5).join(', ')}`);
-    }
-    
-    // ═══════════════════════════════════════════════════════════════
-    // STRATEGY 1: Find exact 2-4 word phrase from title (BEST)
-    // ═══════════════════════════════════════════════════════════════
-    
+    // Strategy 1: Find exact 2-4 word phrase from title
     for (let len = Math.min(4, titleWords.length); len >= 2; len--) {
         for (let start = 0; start <= titleWords.length - len; start++) {
             const phrase = titleWords.slice(start, start + len).join(' ');
@@ -1074,10 +1032,7 @@ function findAnchorTextWithDebug(
         }
     }
     
-    // ═══════════════════════════════════════════════════════════════
-    // STRATEGY 2: Find important word (5+ chars) with adjacent word
-    // ═══════════════════════════════════════════════════════════════
-    
+    // Strategy 2: Find important word (5+ chars) with adjacent word
     const importantWords = titleWords.filter(w => w.length >= 5);
     
     for (const word of importantWords) {
@@ -1086,7 +1041,6 @@ function findAnchorTextWithDebug(
         
         const actualWord = text.substring(wordIdx, wordIdx + word.length);
         
-        // Try word + next word
         const afterText = text.substring(wordIdx + word.length, wordIdx + word.length + 30);
         const afterMatch = afterText.match(/^\s*([a-zA-Z]{3,15})/);
         if (afterMatch && !stopWords.has(afterMatch[1].toLowerCase())) {
@@ -1097,7 +1051,6 @@ function findAnchorTextWithDebug(
             }
         }
         
-        // Try previous word + word
         const beforeText = text.substring(Math.max(0, wordIdx - 30), wordIdx);
         const beforeMatch = beforeText.match(/([a-zA-Z]{3,15})\s*$/);
         if (beforeMatch && !stopWords.has(beforeMatch[1].toLowerCase())) {
@@ -1108,17 +1061,13 @@ function findAnchorTextWithDebug(
             }
         }
         
-        // Single word if 7+ chars
         if (word.length >= 7) {
             if (verbose) log(`         → Strategy 2c MATCH: "${actualWord}"`);
             return actualWord;
         }
     }
     
-    // ═══════════════════════════════════════════════════════════════
-    // STRATEGY 3: Find any 4+ char title word with adjacent word
-    // ═══════════════════════════════════════════════════════════════
-    
+    // Strategy 3: Find any 4+ char title word with adjacent word
     for (const word of titleWords) {
         if (word.length < 4) continue;
         
@@ -1127,7 +1076,6 @@ function findAnchorTextWithDebug(
         
         const actualWord = text.substring(wordIdx, wordIdx + word.length);
         
-        // Get adjacent word
         const afterText = text.substring(wordIdx + word.length, wordIdx + word.length + 25);
         const afterMatch = afterText.match(/^\s*([a-zA-Z]{3,12})/);
         if (afterMatch && !stopWords.has(afterMatch[1].toLowerCase())) {
@@ -1136,17 +1084,13 @@ function findAnchorTextWithDebug(
             return anchor;
         }
         
-        // Single word if 6+ chars
         if (word.length >= 6) {
             if (verbose) log(`         → Strategy 3b MATCH: "${actualWord}"`);
             return actualWord;
         }
     }
     
-    // ═══════════════════════════════════════════════════════════════
-    // STRATEGY 4: Use slug-derived words
-    // ═══════════════════════════════════════════════════════════════
-    
+    // Strategy 4: Use slug-derived words
     if (target.slug && target.slug.length > 5) {
         const slugWords = target.slug
             .replace(/-/g, ' ')
@@ -1163,7 +1107,6 @@ function findAnchorTextWithDebug(
                     return actualWord;
                 }
                 
-                // Try adjacent word
                 const afterText = text.substring(wordIdx + word.length, wordIdx + word.length + 20);
                 const afterMatch = afterText.match(/^\s*([a-zA-Z]{3,10})/);
                 if (afterMatch && !stopWords.has(afterMatch[1].toLowerCase())) {
@@ -1175,50 +1118,43 @@ function findAnchorTextWithDebug(
         }
     }
     
-// ═══════════════════════════════════════════════════════════════
-// STRATEGY 5 (IMPROVED): Generic contextual anchor from paragraph
-// ═══════════════════════════════════════════════════════════════
-
-const genericPhrases = text.match(/\b([a-zA-Z]{4,}(?:\s+[a-zA-Z]{4,}){1,2})\b/g);
-if (genericPhrases && genericPhrases.length > 0) {
-    // Enhanced filtering for quality anchors
-    const badStartWords = new Set(['have', 'been', 'this', 'that', 'will', 'would', 'could', 'should', 'there', 'these', 'those', 'when', 'what', 'where', 'which', 'while', 'your', 'their', 'about', 'after', 'before', 'being', 'here', 'very', 'really', 'actually', 'basically', 'simply', 'just', 'even', 'also', 'only']);
-    const badEndWords = new Set(['here', 'there', 'been', 'being', 'have', 'this', 'that', 'very', 'really', 'much', 'well', 'just', 'also', 'only', 'even']);
-    
-    const validPhrases = genericPhrases.filter(p => {
-        const words = p.toLowerCase().split(' ');
-        const firstWord = words[0];
-        const lastWord = words[words.length - 1];
+    // Strategy 5: Generic contextual anchor from paragraph
+    const genericPhrases = text.match(/\b([a-zA-Z]{4,}(?:\s+[a-zA-Z]{4,}){1,2})\b/g);
+    if (genericPhrases && genericPhrases.length > 0) {
+        const badStartWords = new Set(['have', 'been', 'this', 'that', 'will', 'would', 'could', 'should', 'there', 'these', 'those', 'when', 'what', 'where', 'which', 'while', 'your', 'their', 'about', 'after', 'before', 'being', 'here', 'very', 'really', 'actually', 'basically', 'simply', 'just', 'even', 'also', 'only']);
+        const badEndWords = new Set(['here', 'there', 'been', 'being', 'have', 'this', 'that', 'very', 'really', 'much', 'well', 'just', 'also', 'only', 'even']);
         
-        return (
-            p.length >= 10 &&                           // Minimum 10 chars (was 8)
-            p.length <= 35 &&                           // Maximum 35 chars
-            !stopWords.has(firstWord) &&                // First word not stop word
-            !badStartWords.has(firstWord) &&            // First word not bad start
-            !badEndWords.has(lastWord) &&               // Last word not bad end
-            words.every(w => w.length >= 3) &&          // All words 3+ chars
-            !words.every(w => stopWords.has(w))         // Not ALL words are stop words
-        );
-    });
-    
-    if (validPhrases.length > 0) {
-        // Prefer phrases with longer words (more meaningful)
-        validPhrases.sort((a, b) => {
-            const aAvgLen = a.split(' ').reduce((sum, w) => sum + w.length, 0) / a.split(' ').length;
-            const bAvgLen = b.split(' ').reduce((sum, w) => sum + w.length, 0) / b.split(' ').length;
-            return bAvgLen - aAvgLen;
+        const validPhrases = genericPhrases.filter(p => {
+            const words = p.toLowerCase().split(' ');
+            const firstWord = words[0];
+            const lastWord = words[words.length - 1];
+            
+            return (
+                p.length >= 10 &&
+                p.length <= 35 &&
+                !stopWords.has(firstWord) &&
+                !badStartWords.has(firstWord) &&
+                !badEndWords.has(lastWord) &&
+                words.every(w => w.length >= 3) &&
+                !words.every(w => stopWords.has(w))
+            );
         });
         
-        const anchor = validPhrases[0];  // Take best quality phrase
-        if (verbose) log(`         → Strategy 5 MATCH (generic): "${anchor}"`);
-        return anchor;
+        if (validPhrases.length > 0) {
+            validPhrases.sort((a, b) => {
+                const aAvgLen = a.split(' ').reduce((sum, w) => sum + w.length, 0) / a.split(' ').length;
+                const bAvgLen = b.split(' ').reduce((sum, w) => sum + w.length, 0) / b.split(' ').length;
+                return bAvgLen - aAvgLen;
+            });
+            
+            const anchor = validPhrases[0];
+            if (verbose) log(`         → Strategy 5 MATCH (generic): "${anchor}"`);
+            return anchor;
+        }
     }
+    
+    return '';
 }
-
-    // ← ADD THESE TWO LINES:
-    return '';  // No anchor found after all strategies
-}  // Close findAnchorTextWithDebug function
-
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 🔍 JSON HEALING
@@ -1229,13 +1165,11 @@ function healJSON(rawText: string, log: LogFunction): { success: boolean; data?:
     
     let text = rawText.trim();
     
-    // Strategy 1: Direct parse
     try {
         const parsed = JSON.parse(text);
         if (parsed.htmlContent) return { success: true, data: parsed };
     } catch {}
     
-    // Strategy 2: Extract from markdown
     const jsonBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
     if (jsonBlockMatch) {
         try {
@@ -1247,7 +1181,6 @@ function healJSON(rawText: string, log: LogFunction): { success: boolean; data?:
         } catch {}
     }
     
-    // Strategy 3: Find boundaries
     const firstBrace = text.indexOf('{');
     const lastBrace = text.lastIndexOf('}');
     if (firstBrace !== -1 && lastBrace > firstBrace) {
@@ -1260,7 +1193,6 @@ function healJSON(rawText: string, log: LogFunction): { success: boolean; data?:
         } catch {}
     }
     
-    // Strategy 4: Fix trailing commas
     let fixed = text.replace(/,(\s*[}\]])/g, '$1');
     try {
         const parsed = JSON.parse(fixed);
@@ -1270,7 +1202,6 @@ function healJSON(rawText: string, log: LogFunction): { success: boolean; data?:
         }
     } catch {}
     
-    // Strategy 5: Close truncated JSON
     const ob = (text.match(/\{/g) || []).length;
     const cb = (text.match(/\}/g) || []).length;
     if (ob > cb) {
@@ -1530,27 +1461,40 @@ Return ONLY valid JSON.`;
             log(`   ✅ Outline: ${outline.sections.length} sections, ${outline.faqTopics?.length || 0} FAQs`);
             
             // ═══════════════════════════════════════════════════════════════
-            // STAGE 2: YOUTUBE VIDEO SEARCH (Parallel)
+            // STAGE 2: PARALLEL — YouTube + References
             // ═══════════════════════════════════════════════════════════════
             
-const youtubePromise = config.apiKeys?.serper ? (async () => {
-    try {
-        log(`   🎬 Searching YouTube for: "${config.topic.substring(0, 50)}..."`);
-        const foundVideo = await searchYouTubeVideo(config.topic, config.apiKeys.serper, log);
-        if (foundVideo && foundVideo.videoId) {
-            youtubeVideo = foundVideo;
-            log(`   ✅ YouTube FOUND: "${foundVideo.title.substring(0, 40)}..." (${foundVideo.views?.toLocaleString() || 0} views)`);
-        } else {
-            log(`   ⚠️ YouTube search returned no valid video`);
-            youtubeVideo = null;
-        }
-    } catch (e: any) {
-        log(`   ❌ YouTube search ERROR: ${e.message}`);
-        youtubeVideo = null;
-    }
-})() : Promise.resolve();
+            const youtubePromise = config.apiKeys?.serper ? (async () => {
+                try {
+                    const foundVideo = await searchYouTubeVideo(config.topic, config.apiKeys.serper, log);
+                    if (foundVideo && foundVideo.videoId) {
+                        youtubeVideo = foundVideo;
+                    }
+                } catch (e: any) {
+                    log(`   ❌ YouTube search ERROR: ${e.message}`);
+                }
+            })() : Promise.resolve();
 
-
+            const referencesPromise = config.apiKeys?.serper ? (async () => {
+                try {
+                    if (config.validatedReferences && config.validatedReferences.length >= 5) {
+                        references = config.validatedReferences.map(ref => ({
+                            url: ref.url,
+                            title: ref.title,
+                            source: ref.source || extractSourceName(ref.url),
+                            snippet: ref.snippet,
+                            year: ref.year,
+                            authorityScore: ref.isAuthority ? 90 : 70,
+                            favicon: `https://www.google.com/s2/favicons?domain=${extractDomain(ref.url)}&sz=32`
+                        }));
+                        log(`   ✅ Using ${references.length} pre-validated references`);
+                    } else {
+                        references = await discoverReferences(config.topic, config.apiKeys.serper, { targetCount: 10, minAuthorityScore: 60 }, log);
+                    }
+                } catch (e: any) {
+                    log(`   ❌ References discovery ERROR: ${e.message}`);
+                }
+            })() : Promise.resolve();
             
             // ═══════════════════════════════════════════════════════════════
             // STAGE 3: GENERATE SECTIONS
@@ -1608,8 +1552,8 @@ NO JSON wrapper. NO markdown.`;
                 if (i + 2 < outline.sections.length) await sleep(1000);
             }
             
-            // Wait for YouTube search
-            await youtubePromise;
+            // Wait for parallel tasks
+            await Promise.all([youtubePromise, referencesPromise]);
             
             // ═══════════════════════════════════════════════════════════════
             // STAGE 4: GENERATE FAQ
@@ -1640,7 +1584,6 @@ Return ONLY the JSON array.`;
                     if (faqParsed.success && Array.isArray(faqParsed.data?.faqs)) {
                         faqs = faqParsed.data.faqs;
                     } else {
-                        // Try direct parse
                         try {
                             const directParse = JSON.parse(faqResponse.trim());
                             if (Array.isArray(directParse)) faqs = directParse;
@@ -1653,37 +1596,13 @@ Return ONLY the JSON array.`;
                 }
             }
             
-
             // ═══════════════════════════════════════════════════════════════
-// STAGE 5: DISCOVER REFERENCES
-if (config.apiKeys?.serper) {
-    // Use passed references OR discover new ones
-    if (config.validatedReferences && config.validatedReferences.length >= 5) {
-        references = config.validatedReferences.map(ref => ({
-            url: ref.url,
-            title: ref.title,
-            source: ref.source || extractSourceName(ref.url),
-            snippet: ref.snippet,
-            year: ref.year,
-            authorityScore: ref.isAuthority ? 90 : 70,
-            favicon: `https://www.google.com/s2/favicons?domain=${extractDomain(ref.url)}&sz=32`
-        }));
-        log(`   ✅ Using ${references.length} pre-validated references`);
-    } else {
-        references = await discoverReferences(config.topic, config.apiKeys.serper, { targetCount: 10, minAuthorityScore: 60 }, log);
-    }
-}
-
-
-            
-            // ═══════════════════════════════════════════════════════════════
-            // STAGE 6: GENERATE INTRO & CONCLUSION
+            // STAGE 5: GENERATE INTRO & CONCLUSION
             // ═══════════════════════════════════════════════════════════════
             
             onStageProgress?.({ stage: 'merge', progress: 75, message: 'Generating intro & conclusion...' });
-            log(`📝 Stage 6: Generating intro & conclusion...`);
+            log(`📝 Stage 5: Generating intro & conclusion...`);
             
-            // Introduction
             let introHtml = '';
             try {
                 const introPrompt = `Write an engaging 250-350 word introduction for a blog post titled: "${outline.title}"
@@ -1707,7 +1626,6 @@ OUTPUT: HTML only, starting with <p>. NO heading.`;
                 introHtml = `<p>${escapeHtml(config.topic)} is a topic that deserves careful attention. In this comprehensive guide, you'll discover everything you need to know to achieve your goals.</p>`;
             }
             
-            // Conclusion
             let conclusionHtml = '';
             try {
                 const conclusionPrompt = `Write a strong 200-300 word conclusion for a blog post about "${config.topic}".
@@ -1731,23 +1649,20 @@ OUTPUT: HTML only, starting with <h2>Conclusion</h2>.`;
             }
             
             // ═══════════════════════════════════════════════════════════════
-            // STAGE 7: ASSEMBLE FINAL CONTENT
+            // STAGE 6: ASSEMBLE FINAL CONTENT
             // ═══════════════════════════════════════════════════════════════
             
             onStageProgress?.({ stage: 'polish', progress: 85, message: 'Assembling final content...' });
-            log(`🔀 Stage 7: Assembling content with visual components...`);
+            log(`🔀 Stage 6: Assembling content with visual components...`);
             
-            // Quick Answer
             const quickAnswerText = `${config.topic} requires understanding key principles and applying proven strategies. This comprehensive guide covers everything from foundational concepts to advanced techniques, backed by expert insights and real-world examples.`;
             
-            // Pro Tips
             const proTips = [
                 `Start with the fundamentals before moving to advanced techniques — mastery comes from a solid foundation.`,
                 `Track your progress regularly and adjust your approach based on actual results, not assumptions.`,
                 `Learn from industry experts and stay updated with the latest trends and best practices.`
             ];
             
-            // Key Takeaways
             const keyTakeaways = outline.keyTakeaways?.length > 0 ? outline.keyTakeaways : [
                 `Understanding ${config.topic} requires both theoretical knowledge and practical application`,
                 `Success depends on consistent effort and continuous learning`,
@@ -1756,35 +1671,25 @@ OUTPUT: HTML only, starting with <h2>Conclusion</h2>.`;
                 `Building a strong foundation enables advanced strategy implementation`
             ];
             
-            // Build content parts
             const contentParts: string[] = [];
             
-            // CSS
             contentParts.push(THEME_ADAPTIVE_CSS);
             contentParts.push('<div class="wpo-content">');
-            
-            // Introduction
             contentParts.push(introHtml);
-            
-            // Quick Answer
             contentParts.push(createQuickAnswerBox(quickAnswerText));
             
-            // YouTube Video (if found)
-            if (youtubeVideo) {
+            if (youtubeVideo && youtubeVideo.videoId) {
                 contentParts.push(createYouTubeEmbed(youtubeVideo));
                 log(`   ✅ YouTube video embedded`);
             }
             
-            // Sections with Pro Tips interspersed
             sections.forEach((section, index) => {
                 contentParts.push(section);
                 
-                // Add Pro Tip after every 3rd section
                 if ((index + 1) % 3 === 0 && proTips[Math.floor(index / 3)]) {
                     contentParts.push(createProTipBox(proTips[Math.floor(index / 3)]));
                 }
                 
-                // Add Warning after section 5
                 if (index === 4) {
                     contentParts.push(createWarningBox(
                         `Many beginners make the mistake of rushing through the fundamentals. Take your time to fully understand each concept before moving forward — it will save you significant time and frustration later.`,
@@ -1793,56 +1698,44 @@ OUTPUT: HTML only, starting with <h2>Conclusion</h2>.`;
                 }
             });
             
-            // Key Takeaways
             contentParts.push(createKeyTakeaways(keyTakeaways));
             
-            // FAQ Accordion
             if (faqs.length > 0) {
                 contentParts.push(createFAQAccordion(faqs));
             }
             
-            // Conclusion
             contentParts.push(conclusionHtml);
             
-            // References Section
             if (references.length > 0) {
                 contentParts.push(createReferencesSection(references));
                 log(`   ✅ References section: ${references.length} sources`);
             }
             
-            // Close wrapper
             contentParts.push('</div>');
             
             let assembledContent = contentParts.filter(Boolean).join('\n\n');
-            
-            // Remove H1 tags
             assembledContent = removeAllH1Tags(assembledContent, log);
             
             // ═══════════════════════════════════════════════════════════════
-            // STAGE 8: INTERNAL LINKS
+            // STAGE 7: INTERNAL LINKS
             // ═══════════════════════════════════════════════════════════════
             
             if (config.internalLinks && config.internalLinks.length > 0) {
-                log(`🔗 Stage 8: Injecting internal links (distributed)...`);
+                log(`🔗 Stage 7: Injecting internal links...`);
                 
-            const linkResult = injectInternalLinksDistributed(
-            assembledContent,
-            config.internalLinks,
-            '',  // Already correct in your file - just verify it
-            log
-);
-
-
-
+                const linkResult = injectInternalLinksDistributed(
+                    assembledContent,
+                    config.internalLinks,
+                    '',
+                    log
+                );
                 
                 assembledContent = linkResult.html;
             }
             
-            // Final word count
             const finalWordCount = countWords(assembledContent);
             log(`   ✅ Final content: ${finalWordCount.toLocaleString()} words`);
             
-            // Build contract
             const contract: ContentContract = {
                 title: outline.title,
                 metaDescription: outline.metaDescription,
@@ -1874,66 +1767,59 @@ OUTPUT: HTML only, starting with <h2>Conclusion</h2>.`;
         }
     }
 
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // 🎯 SINGLE-SHOT GENERATION — FIXED VERSION
+    // ═══════════════════════════════════════════════════════════════════════════════
 
-async generateSingleShot(config: GenerateConfig, log: LogFunction): Promise<GenerationResult> {
-    const startTime = Date.now();
-    log(`🎨 SINGLE-SHOT GENERATION (FULL ENTERPRISE MODE)`);
-    
-    let youtubeVideo: YouTubeVideoData | null = null;
-    let references: DiscoveredReference[] = [];
-    
-    // ═══════════════════════════════════════════════════════════════
-    // STEP 1: PARALLEL — YouTube + References (FIXED - NO TDZ)
-    // ═══════════════════════════════════════════════════════════════
-
-    log(`   🔍 Starting parallel discovery...`);
-
-    // ✅ YouTube Promise
-    const youtubePromise = config.apiKeys?.serper ? (async () => {
-        try {
-            const video = await searchYouTubeVideo(config.topic, config.apiKeys.serper, log);
-            if (video && video.videoId) {
-                youtubeVideo = video;
-                log(`   ✅ YouTube FOUND: "${video.title?.substring(0, 40)}..." (${video.views?.toLocaleString() || 0} views)`);
-            } else {
-                log(`   ⚠️ YouTube search returned no valid video`);
-                youtubeVideo = null;
-            }
-            return video;
-        } catch (e: any) {
-            log(`   ❌ YouTube search ERROR: ${e.message}`);
-            youtubeVideo = null;
-            return null;
-        }
-    })() : Promise.resolve(null);
-
-    // ✅ References Promise (ADD THIS - IT WAS COMPLETELY MISSING!)
-        // ✅ References Promise
-    const referencesPromise = config.apiKeys?.serper ? (async () => {
-        try {
-            if (config.validatedReferences && config.validatedReferences.length >= 5) {
-                references = config.validatedReferences.map(ref => ({
-                    url: ref.url,
-                    title: ref.title,
-                    source: ref.source || extractSourceName(ref.url),
-                    snippet: ref.snippet,
-                    year: ref.year,
-                    authorityScore: ref.isAuthority ? 90 : 70,
-                    favicon: `https://www.google.com/s2/favicons?domain=${extractDomain(ref.url)}&sz=32`
-                }));
-                log(`   ✅ Using ${references.length} pre-validated references`);
-            } else {
-                references = await discoverReferences(config.topic, config.apiKeys.serper, { targetCount: 10, minAuthorityScore: 60 }, log);
-                log(`   ✅ Discovered ${references.length} references`);
-            }
-        } catch (e: any) {
-            log(`   ❌ References discovery ERROR: ${e.message}`);
-            references = [];
-        }
-    })() : Promise.resolve();
+    async generateSingleShot(config: GenerateConfig, log: LogFunction): Promise<GenerationResult> {
+        const startTime = Date.now();
+        log(`🎨 SINGLE-SHOT GENERATION v${AI_ORCHESTRATOR_VERSION}`);
+        
+        let youtubeVideo: YouTubeVideoData | null = null;
+        let references: DiscoveredReference[] = [];
         
         // ═══════════════════════════════════════════════════════════════
-        // STEP 2: HUMAN-STYLE CONTENT GENERATION
+        // STEP 1: START PARALLEL TASKS — YouTube + References
+        // ═══════════════════════════════════════════════════════════════
+
+        log(`   🔍 Starting parallel discovery...`);
+
+        const youtubePromise = config.apiKeys?.serper ? (async () => {
+            try {
+                const video = await searchYouTubeVideo(config.topic, config.apiKeys.serper, log);
+                if (video && video.videoId) {
+                    youtubeVideo = video;
+                    log(`   ✅ YouTube FOUND: "${video.title?.substring(0, 40)}..."`);
+                }
+            } catch (e: any) {
+                log(`   ❌ YouTube search ERROR: ${e.message}`);
+            }
+        })() : Promise.resolve();
+
+        const referencesPromise = config.apiKeys?.serper ? (async () => {
+            try {
+                if (config.validatedReferences && config.validatedReferences.length >= 5) {
+                    references = config.validatedReferences.map(ref => ({
+                        url: ref.url,
+                        title: ref.title,
+                        source: ref.source || extractSourceName(ref.url),
+                        snippet: ref.snippet,
+                        year: ref.year,
+                        authorityScore: ref.isAuthority ? 90 : 70,
+                        favicon: `https://www.google.com/s2/favicons?domain=${extractDomain(ref.url)}&sz=32`
+                    }));
+                    log(`   ✅ Using ${references.length} pre-validated references`);
+                } else {
+                    references = await discoverReferences(config.topic, config.apiKeys.serper, { targetCount: 10, minAuthorityScore: 60 }, log);
+                    log(`   ✅ Discovered ${references.length} references`);
+                }
+            } catch (e: any) {
+                log(`   ❌ References discovery ERROR: ${e.message}`);
+            }
+        })() : Promise.resolve();
+        
+        // ═══════════════════════════════════════════════════════════════
+        // STEP 2: GENERATE CONTENT
         // ═══════════════════════════════════════════════════════════════
         
         const humanPrompt = `You're writing like a mix of Alex Hormozi, Tim Ferriss, and Seth Godin. Your content is punchy, personal, valuable, and impossible to detect as AI.
@@ -1942,64 +1828,45 @@ Write a ${CONTENT_TARGETS.TARGET_WORDS}+ word blog post about: "${config.topic}"
 
 ⚠️ CRITICAL: Do NOT include any FAQ section in htmlContent. 
 We add FAQs separately using the faqs array.
-Do NOT write "Frequently Asked Questions" or any Q&A format in the HTML.
 
 ═══════════════════════════════════════════════════════════════
-VOICE RULES (CRITICAL — THIS IS HOW HUMANS WRITE):
+VOICE RULES:
 ═══════════════════════════════════════════════════════════════
 
 1. BE CONVERSATIONAL:
    • Write like you're texting a smart friend
-   • Use "you" and "your" in almost every paragraph
-   • Contractions ALWAYS: don't, won't, can't, you'll, here's, it's, that's
-   • Be opinionated — take a stance, have a point of view
-   • Share "secrets" and insider knowledge
+   • Use "you" and "your" constantly
+   • Contractions ALWAYS: don't, won't, can't, you'll, here's, it's
+   • Be opinionated — take a stance
 
 2. SENTENCE STRUCTURE:
-   • Start sentences with: Look, Here's the thing, And, But, So, Now, Plus, Oh, Honestly, Real talk, Truth is
-   • Mix short punchy sentences (3-5 words) with medium ones
+   • Start sentences with: Look, Here's the thing, And, But, So, Now
+   • Mix short punchy sentences with medium ones
    • NEVER write sentences over 18 words
-   • Use fragments for emphasis. Like this. Works great.
-   • Questions engage readers. You know what I mean?
+   • Use fragments for emphasis. Like this.
 
 3. PARAGRAPH RULES:
    • 1-3 sentences MAX per paragraph
-   • Single sentence paragraphs for punch
-   • White space is your friend — lots of it
-   • Never write walls of text
-
-4. MAKE IT REAL:
-   • Use specific numbers (not "many" — say "73%")
-   • Include real examples and scenarios
-   • Acknowledge objections before the reader thinks them
-   • Create "aha moments" with unexpected insights
+   • White space is your friend
 
 ═══════════════════════════════════════════════════════════════
-ABSOLUTELY FORBIDDEN (INSTANT AI DETECTION):
+ABSOLUTELY FORBIDDEN:
 ═══════════════════════════════════════════════════════════════
 
-NEVER use these AI phrases:
-• "In today's [anything]" / "In this digital age" / "In the modern world"
-• "It's important to note" / "It's worth mentioning" / "It should be noted"
-• "This comprehensive guide" / "This article will explore"
-• "Let's dive in" / "Without further ado" / "Let's get started"
-• "Leverage" / "Utilize" / "Facilitate" / "Delve" / "Realm" / "Myriad"
-• "Navigate the landscape" / "Paradigm" / "Multifaceted" / "Robust"
-• "Game-changer" / "Revolutionary" / "Cutting-edge" / "Groundbreaking"
-• "In conclusion" / "To summarize" / "In summary" / "To sum up"
-• "First and foremost" / "Last but not least" / "At the end of the day"
-• "Whether you're a beginner or expert" / "Whether you're new or experienced"
-• Starting sentences with "This is" or "This means" or "This allows"
-• "Crucial" / "Essential" / "Vital" / "Pivotal" / "Significant"
+NEVER use:
+• "In today's [anything]"
+• "It's important to note"
+• "Let's dive in"
+• "Leverage" / "Utilize" / "Delve"
+• "Comprehensive guide"
 
 ═══════════════════════════════════════════════════════════════
 STRUCTURE:
 ═══════════════════════════════════════════════════════════════
 
 • 8-12 H2 sections, each with 2-3 H3 subsections
-• NO H1 tags — WordPress handles the title
-• Start with a killer hook (story, shocking stat, or bold claim)
-• Include bullets and numbered lists where natural
+• NO H1 tags
+• Start with a killer hook
 • FAQ section: 8-10 questions with 80-150 word answers
 
 ═══════════════════════════════════════════════════════════════
@@ -2010,13 +1877,13 @@ OUTPUT FORMAT (VALID JSON ONLY):
   "title": "Curiosity-inducing title (50-60 chars)",
   "metaDescription": "Compelling meta description (150-160 chars)",
   "slug": "url-friendly-slug",
-  "htmlContent": "Full HTML content starting with hook paragraph",
-  "excerpt": "2-3 sentence compelling summary",
-  "faqs": [{"question": "Real question", "answer": "80-150 word detailed answer"}],
+  "htmlContent": "Full HTML content with H2/H3 sections",
+  "excerpt": "2-3 sentence summary",
+  "faqs": [{"question": "Real question", "answer": "80-150 word answer"}],
   "wordCount": number
 }
 
-⚠️ Return ONLY valid JSON. No markdown. No explanation.`;
+⚠️ Return ONLY valid JSON.`;
 
         for (let attempt = 1; attempt <= 3; attempt++) {
             log(`   📝 Content attempt ${attempt}/3...`);
@@ -2024,7 +1891,7 @@ OUTPUT FORMAT (VALID JSON ONLY):
             try {
                 const response = await callLLM(
                     config.provider, config.apiKeys, config.model, humanPrompt,
-                    'You are an elite content creator who writes like the best human bloggers. Your content is impossible to detect as AI. Never sound formal, corporate, or robotic.',
+                    'You are an elite content creator. Never sound formal or robotic.',
                     { temperature: 0.78 + (attempt - 1) * 0.04, maxTokens: 16000 },
                     TIMEOUTS.SINGLE_SHOT, log
                 );
@@ -2034,377 +1901,211 @@ OUTPUT FORMAT (VALID JSON ONLY):
                 if (parsed.success && parsed.data?.htmlContent) {
                     let rawContract = parsed.data as ContentContract;
                     
-                    // Wait for parallel tasks
+                    // ═══════════════════════════════════════════════════════════
+                    // STEP 3: WAIT FOR PARALLEL TASKS — CRITICAL FIX!
+                    // ═══════════════════════════════════════════════════════════
+                    
                     log(`   ⏳ Waiting for YouTube & References...`);
-                    await youtubePromise;
+                    await Promise.all([youtubePromise, referencesPromise]);  // ✅ FIXED: Await BOTH!
+                    
+                    log(`   📊 Parallel results:`);
+                    log(`      → YouTube: ${youtubeVideo ? '✅ ' + youtubeVideo.title?.substring(0, 30) : '❌ None'}`);
+                    log(`      → References: ${references.length} sources`);
                     
                     // ═══════════════════════════════════════════════════════════
-                    // STEP 3: ASSEMBLE WITH 12+ VISUAL COMPONENTS
+                    // STEP 4: PROCESS CONTENT
                     // ═══════════════════════════════════════════════════════════
                     
-                    log(`   🎨 Assembling with 12+ visual components...`);
+                    log(`   🎨 Assembling with visual components...`);
                     
                     const contentParts: string[] = [];
                     
-                    // 1. CSS
                     contentParts.push(THEME_ADAPTIVE_CSS);
                     contentParts.push('<div class="wpo-content">');
                     
-                    // 2. Quick Answer Box
-                    const quickAnswerText = `Here's the deal: ${config.topic} isn't as complicated as most people make it. This guide breaks down exactly what works (and what doesn't) so you can skip the trial-and-error phase.`;
+                    // Quick Answer Box
+                    const quickAnswerText = `Here's the deal: ${config.topic} isn't as complicated as most people make it. This guide breaks down exactly what works.`;
                     contentParts.push(createQuickAnswerBox(quickAnswerText, '⚡ Quick Answer'));
                     
-// 3. YouTube Video — WITH DETAILED DEBUG
-log(`   🎬 YouTube embed check:`);
-log(`      → youtubeVideo exists: ${!!youtubeVideo}`);
-log(`      → videoId: ${youtubeVideo?.videoId || 'MISSING'}`);
-log(`      → title: ${youtubeVideo?.title?.substring(0, 30) || 'MISSING'}`);
-
-if (youtubeVideo && youtubeVideo.videoId) {
-    const embedHtml = createYouTubeEmbed(youtubeVideo);
-    if (embedHtml && embedHtml.includes('iframe')) {
-        contentParts.push(embedHtml);
-        log(`   ✅ YouTube EMBEDDED successfully`);
-    } else {
-        log(`   ❌ YouTube embed HTML invalid (length: ${embedHtml?.length || 0})`);
-    }
-} else {
-    log(`   ⚠️ No YouTube video to embed`);
-}
-
-
-                    
-                    // 4. Statistics Box
+                    // Statistics Box
                     contentParts.push(createStatisticsBox([
                         { value: '73%', label: 'Success Rate Increase', icon: '📈' },
                         { value: '2.5x', label: 'Faster Results', icon: '⚡' },
                         { value: '10K+', label: 'People Helped', icon: '👥' }
                     ]));
                     
-// 5. Main Content with Visual Enhancements — STRIP ALL FAQ FORMATS
-let mainContent = rawContract.htmlContent;
-mainContent = removeAllH1Tags(mainContent, log);
-
-// ═══════════════════════════════════════════════════════════════
-// 🧹 CRITICAL: Strip ALL FAQ content from LLM output
-// The LLM often includes FAQs in htmlContent, but we add our own accordion
-// ═══════════════════════════════════════════════════════════════
-
-const originalLength = mainContent.length;
-
-// Pattern 1: H2 FAQ sections (most common)
-mainContent = mainContent.replace(/<h2[^>]*>.*?(?:FAQ|Frequently Asked|Common Questions|Questions & Answers|Q\s*&\s*A).*?<\/h2>[\s\S]*?(?=<h2[^>]*>|$)/gi, '');
-
-// Pattern 2: H3 FAQ sections
-mainContent = mainContent.replace(/<h3[^>]*>.*?(?:FAQ|Frequently Asked).*?<\/h3>[\s\S]*?(?=<h[23][^>]*>|$)/gi, '');
-
-// Pattern 3: Section with FAQ schema markup
-mainContent = mainContent.replace(/<section[^>]*(?:itemtype[^>]*FAQPage|class="[^"]*faq)[^>]*>[\s\S]*?<\/section>/gi, '');
-
-// Pattern 4: Div with FAQ class
-mainContent = mainContent.replace(/<div[^>]*class="[^"]*(?:faq|questions)[^"]*"[^>]*>[\s\S]*?<\/div>/gi, '');
-
-// Pattern 5: Bold question + answer format (Q: ... A: ...)
-mainContent = mainContent.replace(/(?:<p>\s*<(?:strong|b)>[^<]*\?<\/(?:strong|b)>\s*<\/p>\s*<p>[^<]+<\/p>\s*){2,}/gi, '');
-
-// Pattern 6: Numbered question list format
-mainContent = mainContent.replace(/(?:<p>\s*\d+\.\s*[^<]*\?[\s\S]*?<\/p>){3,}/gi, '');
-
-// Pattern 7: Definition list format
-mainContent = mainContent.replace(/<dl[^>]*>[\s\S]*?(?:question|faq)[\s\S]*?<\/dl>/gi, '');
-
-// Pattern 8: Plain text Q&A format (question followed by answer paragraph)
-// This catches: "What is X?\n\nAnswer here..."
-mainContent = mainContent.replace(/(?:<p[^>]*>[^<]*\?<\/p>\s*<p[^>]*>[^<]{50,}<\/p>\s*){3,}/gi, '');
-
-// Pattern 9: Numbered list FAQ format
-mainContent = mainContent.replace(/<ol[^>]*>(?:\s*<li[^>]*>[^<]*\?[\s\S]*?<\/li>\s*){3,}<\/ol>/gi, '');
-
-// Pattern 10: Questions as bold standalone paragraphs
-mainContent = mainContent.replace(/(?:<p[^>]*>\s*<(?:strong|b|em)>[^<]*\?<\/(?:strong|b|em)>\s*<\/p>\s*<p[^>]*>[^<]+<\/p>\s*){2,}/gi, '');
+                    // Process main content
+                    let mainContent = rawContract.htmlContent;
+                    mainContent = removeAllH1Tags(mainContent, log);
                     
-
-// Clean up any orphaned FAQ headers
-mainContent = mainContent.replace(/<h[23][^>]*>.*?(?:FAQ|Frequently Asked|Questions).*?<\/h[23]>\s*(?=<h[23]|<\/div>|$)/gi, '');
-
-// Clean up multiple blank lines
-mainContent = mainContent.replace(/\n{4,}/g, '\n\n');
-
-if (mainContent.length < originalLength) {
-    log(`   🧹 Stripped ${originalLength - mainContent.length} chars of duplicate FAQ content from LLM output`);
-} else {
-    log(`   ✓ No duplicate FAQ content found in LLM output`);
-}
-
-
+                    // Strip FAQ content from LLM output
+                    const originalLength = mainContent.length;
+                    mainContent = mainContent.replace(/<h2[^>]*>.*?(?:FAQ|Frequently Asked|Common Questions).*?<\/h2>[\s\S]*?(?=<h2[^>]*>|$)/gi, '');
+                    mainContent = mainContent.replace(/\n{4,}/g, '\n\n');
                     
-                    const h2Matches = [...mainContent.matchAll(/<h2[^>]*>[\s\S]*?(?=<h2|$)/gi)];
+                    if (mainContent.length < originalLength) {
+                        log(`   🧹 Stripped ${originalLength - mainContent.length} chars of duplicate FAQ content`);
+                    }
                     
-                                        if (h2Matches.length > 0) {
-                        // ═══════════════════════════════════════════════════════════════
-                        // 🎨 SOTA VISUAL COMPONENT INJECTION SYSTEM
-                        // ═══════════════════════════════════════════════════════════════
+                    // ═══════════════════════════════════════════════════════════
+                    // STEP 5: EXTRACT H2 SECTIONS — FIXED METHOD!
+                    // ═══════════════════════════════════════════════════════════
+                    
+                    // ✅ FIXED: Use split() instead of matchAll()
+                    const h2SplitRegex = /(<h2[^>]*>)/gi;
+                    const parts = mainContent.split(h2SplitRegex).filter(p => p.trim());
+                    
+                    const h2Sections: string[] = [];
+                    let introContent = '';
+                    
+                    for (let i = 0; i < parts.length; i++) {
+                        if (parts[i].match(/<h2[^>]*>/i)) {
+                            // This is an H2 tag, combine with content that follows
+                            const h2Tag = parts[i];
+                            const content = parts[i + 1] || '';
+                            h2Sections.push(h2Tag + content);
+                            i++; // Skip the content part
+                        } else if (h2Sections.length === 0) {
+                            // Content before first H2 (intro)
+                            introContent += parts[i];
+                        }
+                    }
+                    
+                    log(`   📊 Content analysis:`);
+                    log(`      → Intro length: ${introContent.length} chars`);
+                    log(`      → H2 sections found: ${h2Sections.length}`);
+                    
+                    // Add intro content
+                    if (introContent.trim()) {
+                        contentParts.push(introContent);
+                    }
+                    
+                    // YouTube Video — AFTER intro
+                    if (youtubeVideo && youtubeVideo.videoId) {
+                        const embedHtml = createYouTubeEmbed(youtubeVideo);
+                        contentParts.push(embedHtml);
+                        log(`   ✅ YouTube EMBEDDED`);
+                    } else {
+                        log(`   ⚠️ No YouTube video to embed`);
+                    }
+                    
+                    // ═══════════════════════════════════════════════════════════
+                    // STEP 6: INJECT VISUAL COMPONENTS INTO H2 SECTIONS
+                    // ═══════════════════════════════════════════════════════════
+                    
+                    if (h2Sections.length > 0) {
+                        log(`   🎨 Processing ${h2Sections.length} body sections...`);
                         
-                        const proTips = [
-                            `Here's what nobody tells you: the first 30 days are the hardest. Push through that resistance and everything changes. Most people quit at day 21 — don't be most people.`,
-                            `Stop trying to be perfect. Done beats perfect every single time. Ship fast, learn faster, iterate constantly. Perfectionism is just fear wearing a fancy mask.`,
-                            `The secret? Consistency beats intensity. Daily 30-minute sessions beat weekend marathons every time. Small daily actions compound into massive results.`,
-                            `Track everything. Seriously. What gets measured gets improved. Set up your tracking system before you do anything else.`,
-                            `Learn from people who've actually done it — not theorists, not commentators. Find someone with real results and model their exact process.`
+                                                const proTips = [
+                            `The first 30 days are hardest. Push through that resistance.`,
+                            `Done beats perfect. Ship fast, learn faster.`,
+                            `Consistency beats intensity. Daily 30-minute sessions win.`,
+                            `Track everything. What gets measured gets improved.`,
+                            `Learn from people who've actually done it.`
                         ];
                         
                         const expertQuotes = [
-                            { quote: `The bottleneck is never resources. It's resourcefulness. Stop waiting for perfect conditions — they don't exist.`, author: 'Tony Robbins', title: 'Peak Performance Coach' },
-                            { quote: `What gets measured gets managed. What gets managed gets improved. Start tracking today.`, author: 'Peter Drucker', title: 'Management Expert' },
-                            { quote: `The way to get started is to quit talking and begin doing. Action creates clarity.`, author: 'Walt Disney', title: 'Entrepreneur & Visionary' },
-                            { quote: `Success is not final, failure is not fatal. It is the courage to continue that counts.`, author: 'Winston Churchill', title: 'Former Prime Minister' }
+                            { quote: `The bottleneck is never resources. It's resourcefulness.`, author: 'Tony Robbins', title: 'Peak Performance Coach' },
+                            { quote: `What gets measured gets managed.`, author: 'Peter Drucker', title: 'Management Expert' },
+                            { quote: `The way to get started is to quit talking and begin doing.`, author: 'Walt Disney', title: 'Entrepreneur & Visionary' }
                         ];
                         
                         let tipIndex = 0;
                         let quoteIndex = 0;
                         
-                        h2Matches.forEach((match, index) => {
-                            // Add the H2 section content
-                            contentParts.push(match[0]);
+                        h2Sections.forEach((section, index) => {
+                            contentParts.push(section);
                             
-                            // ═══════════════════════════════════════════════════════════
-                            // SECTION 1: INFO CALLOUT — Bookmark reminder
-                            // ═══════════════════════════════════════════════════════════
+                            // Info callout after section 1
                             if (index === 0) {
                                 contentParts.push(createCalloutBox(
-                                    `Bookmark this page right now. You'll want to come back to it multiple times as you implement these strategies. Trust me on this one.`,
+                                    `Bookmark this page now. You'll want to come back as you implement these strategies.`,
                                     'info'
                                 ));
                             }
                             
-                            // ═══════════════════════════════════════════════════════════
-                            // SECTION 2: DATA TABLE — Fact-checked statistics
-                            // ═══════════════════════════════════════════════════════════
+                            // Data table after section 2
                             if (index === 1) {
                                 contentParts.push(createDataTable(
-                                    `${config.topic} — Key Statistics & Industry Data`,
-                                    ['Metric', 'Value', 'Source', 'Year'],
+                                    `${config.topic} — Key Statistics`,
+                                    ['Metric', 'Value', 'Source'],
                                     [
-                                        ['Average Success Rate', '67-73%', 'Industry Research', '2024'],
-                                        ['Time to First Results', '30-90 days', 'Case Studies', '2024'],
-                                        ['ROI Improvement', '2.5x average', 'Performance Data', '2023'],
-                                        ['Adoption Rate Growth', '+34% YoY', 'Market Analysis', '2024'],
-                                        ['User Satisfaction Score', '4.6/5 stars', 'Survey Data', '2024'],
-                                        ['Implementation Success', '78%', 'Meta-Analysis', '2024']
+                                        ['Success Rate', '67-73%', 'Industry Research'],
+                                        ['Time to Results', '30-90 days', 'Case Studies'],
+                                        ['ROI Improvement', '2.5x average', 'Performance Data']
                                     ],
-                                    'Compiled from industry reports, academic research, and verified case studies'
+                                    'Compiled from industry reports and case studies'
                                 ));
                             }
                             
-                            // ═══════════════════════════════════════════════════════════
-                            // PRO TIP after sections 2, 5, 8, 11
-                            // ═══════════════════════════════════════════════════════════
+                            // Pro tip every 3 sections
                             if ((index + 1) % 3 === 0 && tipIndex < proTips.length) {
                                 contentParts.push(createProTipBox(proTips[tipIndex], '💡 Pro Tip'));
                                 tipIndex++;
                             }
                             
-                            // ═══════════════════════════════════════════════════════════
-                            // SECTION 3: HIGHLIGHT BOX — Motivation
-                            // ═══════════════════════════════════════════════════════════
-                            if (index === 2) {
-                                contentParts.push(createHighlightBox(
-                                    `Most people fail not because they lack knowledge — they fail because they don't take action. You're already ahead just by reading this. Now it's time to execute.`,
-                                    '🎯', '#6366f1'
-                                ));
-                            }
-                            
-                            // ═══════════════════════════════════════════════════════════
-                            // SECTION 4: WARNING BOX — Common mistakes
-                            // ═══════════════════════════════════════════════════════════
+                            // Warning box after section 4
                             if (index === 3) {
                                 contentParts.push(createWarningBox(
-                                    `Biggest mistake I see? Trying to do everything at once. Pick ONE strategy from this section, master it completely, then add the next. Stack skills, don't scatter them. This alone will 10x your results.`,
-                                    '⚠️ Critical Mistake to Avoid'
+                                    `Biggest mistake? Trying to do everything at once. Pick ONE strategy, master it, then add the next.`,
+                                    '⚠️ Common Mistake'
                                 ));
                             }
                             
-                            // ═══════════════════════════════════════════════════════════
-                            // SECTION 4: SUCCESS CALLOUT — Encouragement
-                            // ═══════════════════════════════════════════════════════════
-                            if (index === 3) {
-                                contentParts.push(createCalloutBox(
-                                    `If you've made it this far, you're already in the top 10% of people who actually take action. Most people close the tab after 30 seconds. You're different. Keep going.`,
-                                    'success'
-                                ));
-                            }
-                            
-                            // ═══════════════════════════════════════════════════════════
-                            // SECTION 5: CHECKLIST BOX — Action items
-                            // ═══════════════════════════════════════════════════════════
+                            // Checklist after section 5
                             if (index === 4) {
                                 contentParts.push(createChecklistBox('Quick Action Checklist', [
-                                    'Implement the first strategy TODAY (not tomorrow, not next week — today)',
-                                    'Set up tracking to measure your progress from day one',
-                                    'Block 30 minutes daily in your calendar for focused practice',
-                                    'Find an accountability partner or join a community',
-                                    'Review and adjust your approach every 7 days based on results',
-                                    'Document what works and what doesn\'t in a simple spreadsheet'
+                                    'Implement the first strategy TODAY',
+                                    'Set up tracking to measure progress',
+                                    'Block 30 minutes daily for focused practice',
+                                    'Find an accountability partner',
+                                    'Review and adjust every 7 days'
                                 ]));
                             }
                             
-                            // ═══════════════════════════════════════════════════════════
-                            // SECTION 6: EXPERT QUOTE BOX
-                            // ═══════════════════════════════════════════════════════════
+                            // Expert quote after section 6
                             if (index === 5 && quoteIndex < expertQuotes.length) {
                                 const q = expertQuotes[quoteIndex];
                                 contentParts.push(createExpertQuoteBox(q.quote, q.author, q.title));
                                 quoteIndex++;
                             }
                             
-                            // ═══════════════════════════════════════════════════════════
-                            // SECTION 6: SECOND HIGHLIGHT — Mindset shift
-                            // ═══════════════════════════════════════════════════════════
-                            if (index === 5) {
-                                contentParts.push(createHighlightBox(
-                                    `Remember: You don't need to be great to start. But you absolutely need to start to become great. The perfect time doesn't exist — there's only now.`,
-                                    '💪', '#8b5cf6'
-                                ));
-                            }
-                            
-                            // ═══════════════════════════════════════════════════════════
-                            // SECTION 7: STEP-BY-STEP BOX — Action plan
-                            // ═══════════════════════════════════════════════════════════
+                            // Step-by-step after section 7
                             if (index === 6) {
                                 contentParts.push(createStepByStepBox('Your 7-Day Action Plan', [
-                                    { title: 'Day 1-2: Foundation', description: 'Set up your environment and eliminate all distractions. Get crystal clear on your ONE specific goal. Write it down. Make it measurable.' },
-                                    { title: 'Day 3-4: First Action', description: 'Implement the core strategy from section 2. Don\'t overthink this — just start and adjust as you go. Imperfect action beats perfect inaction.' },
-                                    { title: 'Day 5-6: Iterate & Optimize', description: 'Review what\'s working, ruthlessly cut what isn\'t. Double down on your early wins. This is where most people quit — don\'t.' },
-                                    { title: 'Day 7: Scale & Systematize', description: 'Add the next layer. Build momentum with your proven foundation. Create simple systems to maintain your gains.' }
+                                    { title: 'Day 1-2: Foundation', description: 'Set up your environment. Get clear on your ONE goal.' },
+                                    { title: 'Day 3-4: First Action', description: 'Implement the core strategy. Start and adjust as you go.' },
+                                    { title: 'Day 5-6: Iterate', description: 'Review what works, cut what doesn\'t. Double down on wins.' },
+                                    { title: 'Day 7: Scale', description: 'Add the next layer. Build systems for lasting results.' }
                                 ]));
-                            }
-                            
-                            // ═══════════════════════════════════════════════════════════
-                            // SECTION 7: SECOND EXPERT QUOTE
-                            // ═══════════════════════════════════════════════════════════
-                            if (index === 6 && quoteIndex < expertQuotes.length) {
-                                const q = expertQuotes[quoteIndex];
-                                contentParts.push(createExpertQuoteBox(q.quote, q.author, q.title));
-                                quoteIndex++;
-                            }
-                            
-                            // ═══════════════════════════════════════════════════════════
-                            // SECTION 8: WARNING CALLOUT — Don't skip ahead
-                            // ═══════════════════════════════════════════════════════════
-                            if (index === 7) {
-                                contentParts.push(createCalloutBox(
-                                    `Don't skip ahead to the "advanced" stuff. Master each section before moving to the next. Speed comes from depth, not breadth. The fundamentals aren't boring — they're the foundation of everything.`,
-                                    'warning'
-                                ));
-                            }
-                            
-                            // ═══════════════════════════════════════════════════════════
-                            // SECTION 8: SECOND CHECKLIST
-                            // ═══════════════════════════════════════════════════════════
-                            if (index === 7) {
-                                contentParts.push(createChecklistBox('Advanced Implementation Checklist', [
-                                    'Review your tracking data weekly and identify patterns',
-                                    'A/B test different approaches to find what works for YOU',
-                                    'Build automation for repetitive tasks',
-                                    'Create templates and SOPs for consistent execution',
-                                    'Schedule monthly deep-dive reviews of your progress'
-                                ]));
-                            }
-                            
-                            // ═══════════════════════════════════════════════════════════
-                            // SECTION 9: STATISTICS BOX — Results
-                            // ═══════════════════════════════════════════════════════════
-                            if (index === 8) {
-                                contentParts.push(createStatisticsBox([
-                                    { value: '87%', label: 'Complete This Guide', icon: '📚' },
-                                    { value: '3.2x', label: 'Better Outcomes', icon: '📈' },
-                                    { value: '21', label: 'Days to Habit', icon: '🎯' },
-                                    { value: '4.8★', label: 'User Rating', icon: '⭐' }
-                                ]));
-                            }
-                            
-                            // ═══════════════════════════════════════════════════════════
-                            // SECTION 10: THIRD HIGHLIGHT — Final push
-                            // ═══════════════════════════════════════════════════════════
-                            if (index === 9) {
-                                contentParts.push(createHighlightBox(
-                                    `You're in the final stretch. Most people never make it this far. The strategies in the remaining sections are where the real magic happens. Stay focused.`,
-                                    '🔥', '#ef4444'
-                                ));
-                            }
-                            
-                            // ═══════════════════════════════════════════════════════════
-                            // SECTION 10: THIRD EXPERT QUOTE
-                            // ═══════════════════════════════════════════════════════════
-                            if (index === 9 && quoteIndex < expertQuotes.length) {
-                                const q = expertQuotes[quoteIndex];
-                                contentParts.push(createExpertQuoteBox(q.quote, q.author, q.title));
-                                quoteIndex++;
-                            }
-                            
-                            // ═══════════════════════════════════════════════════════════
-                            // SECTION 11+: FINAL CALLOUT
-                            // ═══════════════════════════════════════════════════════════
-                            if (index === 10) {
-                                contentParts.push(createCalloutBox(
-                                    `You've absorbed a massive amount of value. But information without implementation is just entertainment. The next 24 hours are crucial — take ONE action from this guide before you close this tab.`,
-                                    'error'
-                                ));
                             }
                         });
+                        
+                        log(`   ✅ All ${h2Sections.length} sections processed with visual components`);
                     } else {
-                        // Fallback if no H2 sections found
+                        log(`   ⚠️ No H2 sections found — using fallback structure`);
                         contentParts.push(mainContent);
-                        contentParts.push(createProTipBox(`Knowledge without action is just entertainment. Pick one thing from this guide and implement it in the next 24 hours. Not tomorrow. Not next week. Today.`, '💡 Take Action Now'));
-                        contentParts.push(createHighlightBox(
-                            `The difference between successful people and everyone else? They take action while others are still "thinking about it."`,
-                            '🚀', '#6366f1'
-                        ));
+                        contentParts.push(createProTipBox(`Take one thing from this guide and implement it today.`, '💡 Take Action'));
                     }
                     
                     // ═══════════════════════════════════════════════════════════
-                    // 6. DEFINITION BOX — Topic definition
+                    // KEY TAKEAWAYS
                     // ═══════════════════════════════════════════════════════════
-                    contentParts.push(createDefinitionBox(
-                        config.topic,
-                        `The systematic approach to achieving measurable results through proven strategies, consistent execution, and continuous optimization. It's not about working harder — it's about working smarter with the right framework. Success comes from understanding the principles, applying them consistently, and iterating based on real data.`
-                    ));
                     
-                    // ═══════════════════════════════════════════════════════════
-                    // 7. COMPARISON TABLE — What works vs what doesn't
-                    // ═══════════════════════════════════════════════════════════
-                    contentParts.push(createComparisonTable(
-                        'What Works vs What Doesn\'t',
-                        ['❌ Common Mistakes', '✅ What Actually Works'],
-                        [
-                            ['Trying to do everything at once', 'Focus on one thing until mastery'],
-                            ['Copying others blindly without context', 'Adapting strategies to YOUR specific situation'],
-                            ['Giving up after the first failure', 'Treating failures as valuable data points'],
-                            ['Waiting for perfect conditions', 'Starting messy and iterating fast'],
-                            ['Going it completely alone', 'Learning from those who\'ve already done it'],
-                            ['Focusing on tactics over strategy', 'Building systems that create lasting results'],
-                            ['Chasing every new shiny object', 'Doubling down on what\'s already working']
-                        ]
-                    ));
-                    
-                    // ═══════════════════════════════════════════════════════════
-                    // 8. KEY TAKEAWAYS — Summary
-                    // ═══════════════════════════════════════════════════════════
                     const keyTakeaways = [
-                        `${config.topic} isn't complicated — but it absolutely requires consistent, focused action over time`,
-                        `Focus relentlessly on the 20% of activities that drive 80% of results (ignore everything else)`,
-                        `Track your progress weekly — what gets measured gets improved, what gets ignored gets worse`,
-                        `Start messy, iterate fast — perfectionism is just procrastination wearing a fancy suit`,
-                        `Find someone who's already achieved what you want and model their exact process`,
-                        `Build systems, not goals — systems create sustainable, repeatable results`
+                        `${config.topic} requires consistent, focused action over time`,
+                        `Focus on the 20% of activities that drive 80% of results`,
+                        `Track your progress weekly — what gets measured gets improved`,
+                        `Start messy, iterate fast — perfectionism is procrastination`,
+                        `Find someone who's achieved what you want and model their process`
                     ];
                     contentParts.push(createKeyTakeaways(keyTakeaways));
                     
                     // ═══════════════════════════════════════════════════════════
-                    // 9. FAQ ACCORDION — With validation and fallback
+                    // FAQ ACCORDION
                     // ═══════════════════════════════════════════════════════════
+                    
                     if (rawContract.faqs && Array.isArray(rawContract.faqs) && rawContract.faqs.length > 0) {
-                        // Validate FAQ structure
                         const validFaqs = rawContract.faqs.filter((f: any) => 
                             f && typeof f.question === 'string' && f.question.length > 5 &&
                             typeof f.answer === 'string' && f.answer.length > 20
@@ -2412,99 +2113,54 @@ if (mainContent.length < originalLength) {
                         
                         if (validFaqs.length > 0) {
                             contentParts.push(createFAQAccordion(validFaqs));
-                            log(`   ✅ FAQ accordion: ${validFaqs.length} valid questions`);
-                        } else {
-                            log(`   ⚠️ FAQs exist but invalid structure — generating defaults`);
-                            const defaultFaqs = [
-                                { question: `What exactly is ${config.topic} and why does it matter?`, answer: `${config.topic} refers to a systematic approach of achieving specific goals through proven methods and consistent practice. Understanding the fundamentals is the first step toward mastery and long-term success. It matters because it gives you a framework for repeatable results rather than relying on luck or random effort.` },
-                                { question: `How long does it typically take to see results with ${config.topic}?`, answer: `Most people start seeing initial results within 30-90 days of consistent effort. However, significant, sustainable improvements typically require 3-6 months of dedicated practice and continuous optimization based on your specific situation. The key is consistency over intensity — small daily actions compound into massive results.` },
-                                { question: `What are the most common mistakes people make with ${config.topic}?`, answer: `The biggest mistakes include: trying to do too much at once, not tracking progress, giving up too early (usually right before a breakthrough), copying others without understanding the underlying principles, and not learning from those who have already succeeded. Focus on one strategy at a time for best results.` },
-                                { question: `Do I need special tools, software, or resources to get started?`, answer: `While some tools can help accelerate your progress, the most important resources are knowledge, consistency, and willingness to learn and adapt. Start with the basics and free tools before investing in advanced solutions. The fundamentals work regardless of what tools you use.` },
-                                { question: `How do I know if my approach to ${config.topic} is actually working?`, answer: `Track specific, measurable metrics weekly. Look for incremental improvements rather than overnight transformations. Document what works and what doesn't, then adjust your approach based on real data. If you're not seeing progress after 30 days of consistent effort, it's time to adjust your strategy.` },
-                                { question: `What should I do if I feel stuck or overwhelmed?`, answer: `First, simplify. You're probably trying to do too much. Pick the ONE most important thing and focus exclusively on that. Second, review your tracking data — the numbers don't lie. Third, find someone who's been where you are and ask for specific advice. Getting stuck is normal; staying stuck is a choice.` }
-                            ];
-                            contentParts.push(createFAQAccordion(defaultFaqs));
+                            log(`   ✅ FAQ accordion: ${validFaqs.length} questions`);
                         }
                     } else {
-                        log(`   ⚠️ No FAQs in LLM response — generating comprehensive defaults`);
+                        log(`   ⚠️ No FAQs — generating defaults`);
                         const defaultFaqs = [
-                            { question: `What is ${config.topic} and why should I care?`, answer: `${config.topic} is a systematic approach to achieving measurable results through proven strategies. This guide covers everything you need to know to get started and succeed. You should care because it provides a repeatable framework — not just random tips, but a system that works.` },
-                            { question: `How do I actually get started with ${config.topic}?`, answer: `Start by reading through this entire guide first — don't skip sections. Then pick ONE strategy from section 2 and implement it TODAY. Don't try to do everything at once. Focus builds mastery. Action creates clarity. The perfect starting point is wherever you are right now.` },
-                            { question: `What kind of results can I realistically expect?`, answer: `Results vary based on effort, consistency, and your starting point. Most people see initial progress within 30 days and significant improvements within 90 days of focused implementation. The data shows 67-73% success rates for people who follow the complete framework.` },
-                            { question: `What if I get stuck or hit a plateau?`, answer: `Getting stuck is completely normal — it happens to everyone. Review the troubleshooting tips in this guide, look at your tracking data for patterns, join a community of others working on the same goals, or find a mentor who has achieved what you want. Don't suffer in silence.` },
-                            { question: `How much time should I dedicate to this daily?`, answer: `Consistency beats intensity every time. Aim for 30-60 minutes of focused practice daily rather than marathon weekend sessions. Small daily actions compound into massive results over time. Block this time in your calendar and protect it like any other important meeting.` },
-                            { question: `Is this approach suitable for beginners or is it too advanced?`, answer: `This guide is designed to work for all levels. Beginners should start with sections 1-4 and master those before moving on. More experienced practitioners can jump to sections 5-8 for advanced strategies. The fundamentals work regardless of your experience level.` }
+                            { question: `What is ${config.topic}?`, answer: `${config.topic} is a systematic approach to achieving measurable results through proven strategies and consistent execution.` },
+                            { question: `How long does it take to see results?`, answer: `Most people see initial results within 30-90 days of consistent effort. Significant improvements typically require 3-6 months.` },
+                            { question: `What are the most common mistakes?`, answer: `The biggest mistakes include: trying to do too much at once, not tracking progress, and giving up too early.` },
+                            { question: `Do I need special tools to get started?`, answer: `Start with the basics and free tools before investing in advanced solutions. The fundamentals work regardless of tools.` }
                         ];
                         contentParts.push(createFAQAccordion(defaultFaqs));
                     }
                     
                     // ═══════════════════════════════════════════════════════════
-                    // 10. REFERENCES SECTION
+                    // REFERENCES SECTION
                     // ═══════════════════════════════════════════════════════════
+                    
                     if (references.length > 0) {
                         contentParts.push(createReferencesSection(references));
-                        log(`   ✅ References: ${references.length} authoritative sources`);
+                        log(`   ✅ References: ${references.length} sources`);
                     }
-                    
-                    // ═══════════════════════════════════════════════════════════
-                    // 11. FINAL CTA HIGHLIGHT
-                    // ═══════════════════════════════════════════════════════════
-                    contentParts.push(createHighlightBox(
-                        `You now have everything you need to succeed. The strategies. The framework. The data. The only question left is: will you take action? Start with step 1 today. Not tomorrow. Not "when you have time." Today. Your future self will thank you.`,
-                        '🚀', '#10b981'
-                    ));
-                    
-                    // ═══════════════════════════════════════════════════════════
-                    // 12. FINAL SUCCESS CALLOUT
-                    // ═══════════════════════════════════════════════════════════
-                    contentParts.push(createCalloutBox(
-                        `Remember: The gap between where you are and where you want to be is bridged by action, not information. You've got the information. Now go take action. We're rooting for you.`,
-                        'success'
-                    ));
                     
                     // Close wrapper
                     contentParts.push('</div>');
                     
                     // Assemble content
                     let assembledContent = contentParts.filter(Boolean).join('\n\n');
-
                     
-                   // ═══════════════════════════════════════════════════════════
-// STEP 4: INJECT INTERNAL LINKS — WITH DETAILED DEBUGGING
-// ═══════════════════════════════════════════════════════════
-
-log(`   🔗 Internal links check:`);
-log(`      → config.internalLinks exists: ${!!config.internalLinks}`);
-log(`      → config.internalLinks length: ${config.internalLinks?.length || 0}`);
-
-if (config.internalLinks && config.internalLinks.length > 0) {
-    log(`   🔗 Injecting ${config.internalLinks.length} internal links...`);
-    log(`      → First 3 targets: ${config.internalLinks.slice(0, 3).map(l => l.title?.substring(0, 25)).join(', ')}`);
-    
-    const linkResult = injectInternalLinksDistributed(
-        assembledContent,
-        config.internalLinks,
-        '',  // Empty string - don't exclude any URLs
-        log
-    );
-    
-    assembledContent = linkResult.html;
-    
-    if (linkResult.totalLinks > 0) {
-        log(`   ✅ ${linkResult.totalLinks} internal links INJECTED successfully`);
-        log(`      → Anchors used: ${linkResult.linksAdded.map(l => l.anchorText).join(', ')}`);
-    } else {
-        log(`   ⚠️ NO internal links were injected`);
-        log(`      → This means findAnchorText returned empty for all targets`);
-        log(`      → Check if content contains words from link titles`);
-    }
-} else {
-    log(`   ⚠️ NO internal links provided to orchestrator!`);
-    log(`      → Make sure App.tsx passes internalLinks in config`);
-}
-
                     // ═══════════════════════════════════════════════════════════
-                    // STEP 5: CREATE FINAL CONTRACT & RETURN
+                    // INTERNAL LINKS INJECTION
+                    // ═══════════════════════════════════════════════════════════
+                    
+                    if (config.internalLinks && config.internalLinks.length > 0) {
+                        log(`   🔗 Injecting ${config.internalLinks.length} internal links...`);
+                        
+                        const linkResult = injectInternalLinksDistributed(
+                            assembledContent,
+                            config.internalLinks,
+                            '',
+                            log
+                        );
+                        
+                        assembledContent = linkResult.html;
+                        log(`   ✅ ${linkResult.totalLinks} internal links injected`);
+                    }
+                    
+                    // ═══════════════════════════════════════════════════════════
+                    // CREATE FINAL CONTRACT
                     // ═══════════════════════════════════════════════════════════
                     
                     const finalContract: ContentContract = {
@@ -2517,7 +2173,6 @@ if (config.internalLinks && config.internalLinks.length > 0) {
                     
                     if (finalContract.wordCount >= 2000) {
                         log(`   ✅ SUCCESS: ${finalContract.wordCount} words generated`);
-                        log(`   ⏱️ Total time: ${((Date.now() - startTime) / 1000).toFixed(1)}s`);
                         return { 
                             contract: finalContract, 
                             generationMethod: 'single-shot', 
@@ -2526,20 +2181,15 @@ if (config.internalLinks && config.internalLinks.length > 0) {
                             youtubeVideo: youtubeVideo || undefined,
                             references
                         };
-                    } else {
-                        log(`   ⚠️ Word count too low (${finalContract.wordCount}), need 2000+`);
                     }
                 }
                 
-                log(`   ⚠️ Attempt ${attempt} failed, content insufficient...`);
+                log(`   ⚠️ Attempt ${attempt} failed...`);
             } catch (err: any) {
                 log(`   ❌ Attempt ${attempt} error: ${err.message}`);
             }
             
-            if (attempt < 3) {
-                log(`   ⏳ Waiting ${attempt * 2}s before retry...`);
-                await sleep(2000 * attempt);
-            }
+            if (attempt < 3) await sleep(2000 * attempt);
         }
         
         throw new Error('Content generation failed after 3 attempts');
