@@ -1215,6 +1215,9 @@ if (genericPhrases && genericPhrases.length > 0) {
     }
 }
 
+    // ← ADD THESE TWO LINES:
+    return '';  // No anchor found after all strategies
+}  // Close findAnchorTextWithDebug function
 
 
 // ═══════════════════════════════════════════════════════════════════════════════
