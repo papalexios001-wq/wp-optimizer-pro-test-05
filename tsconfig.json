@@ -15,16 +15,18 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./*"],
-      "@lib/*": ["./lib/*"],
-      "@types/*": ["./types/*"]
-    }
+    "types": ["node"]
   },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "*.ts",
+    "*.tsx",
+    "lib/**/*",
+    "types/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test-implementation.ts",
+    "PHASE_1_REMEDIATION_IMPLEMENTATION.ts"
+  ]
 }
