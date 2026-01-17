@@ -1994,7 +1994,7 @@ OUTPUT JSON:
         onProgress?.({ stage: 'validation', progress: 100, message: 'Complete!' });
 
 if (!rawContract) {
-    throw new Error('Content generation failed - no contract');
+    throw new Error('Content generation failed - no contract data');
 }
 
 const finalContract: ContentContract = {
@@ -2002,6 +2002,7 @@ const finalContract: ContentContract = {
     htmlContent: assembledContent,
     wordCount: countWords(assembledContent)
 };
+
 
         const totalTime = Date.now() - startTime;
 
