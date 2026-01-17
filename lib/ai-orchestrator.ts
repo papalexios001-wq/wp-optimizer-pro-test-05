@@ -2505,28 +2505,5 @@ export const GROQ_MODELS = [
     'gemma2-9b-it',
 ];
 
-// Re-export visual components for external use
-export {
-    createQuickAnswerBox,
-    createProTipBox,
-    createWarningBox,
-    createExpertQuoteBox,
-    createHighlightBox,
-    createCalloutBox,
-    createStatisticsBox,
-    createDataTable,
-    createChecklistBox,
-    createStepByStepBox,
-    createComparisonTable,
-    createDefinitionBox,
-    createKeyTakeaways,
-    createFAQAccordion,
-    createYouTubeEmbed,
-    createReferencesSection,
-    searchYouTubeVideo,
-    discoverReferences,
-    injectInternalLinksDistributed
-};
-
+// Default export
 export default orchestrator;
-
