@@ -1,21 +1,11 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // WP OPTIMIZER PRO v39.0 — ULTRA-FAST SITEMAP CRAWLER
 // ═══════════════════════════════════════════════════════════════════════════════
-//
-// FEATURES:
-// ✅ XML Sitemap parsing (sitemap.xml, sitemap_index.xml, post-sitemap.xml)
-// ✅ CORS proxy fallback for cross-origin requests
-// ✅ Concurrent crawling with rate limiting
-// ✅ Automatic URL deduplication
-// ✅ WordPress REST API metadata fetching
-// ✅ Progress callbacks
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import { CrawledPage, InternalLinkTarget } from '../types';
 
-export const SITEMAP_CRAWLER_VERSION = "27.0.0";
+export const SITEMAP_CRAWLER_VERSION = "39.0.0";
 
-// CORS Proxies (fallback chain)
 const CORS_PROXIES = [
     'https://api.allorigins.win/raw?url=',
     'https://corsproxy.io/?',
@@ -24,28 +14,14 @@ const CORS_PROXIES = [
 
 type LogFunction = (msg: string, progress?: number) => void;
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// 🔧 UTILITY FUNCTIONS
-// ═══════════════════════════════════════════════════════════════════════════════
-
 function sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function extractDomain(url: string): string {
-    try {
-        return new URL(url).origin;
-    } catch {
-        return '';
-    }
 }
 
 function normalizeUrl(url: string): string {
     try {
         const u = new URL(url);
-        // Remove trailing slash, lowercase
-        let normalized = u.origin + u.pathname.replace(/\/$/, '');
-        return normalized.toLowerCase();
+        return (u.origin + u.pathname.replace(/\/$/, '')).toLowerCase();
     } catch {
         return url.toLowerCase().replace(/\/$/, '');
     }
@@ -114,114 +90,49 @@ async function fetchWithCorsProxy(
             const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
             
             const proxyUrl = proxy + encodeURIComponent(url);
-            const response = await fetch(proxyUrl, {
-                signal: controller.signal
-            });
+            const response = await fetch(proxyUrl, { signal: controller.signal });
             
             clearTimeout(timeoutId);
             
             if (response.ok) {
                 const text = await response.text();
-                if (text.includes('<urlset') || text.includes('<sitemapindex') || text.includes('<url>')) {
-                    log(`   ✅ CORS proxy succeeded`);
+                if (text.includes('<urlset') || text.includes('<sitemapindex') || text.includes('<url>') || text.includes('<loc>')) {
+                    log(`   ✅ Proxy fetch succeeded`);
                     return text;
                 }
             }
         } catch (e: any) {
             log(`   ⚠️ Proxy failed: ${e.message}`);
         }
-        
-        await sleep(500);
     }
     
-    throw new Error(`Failed to fetch sitemap from ${url}`);
+    throw new Error('All fetch methods failed');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// 📄 PARSE XML SITEMAP
+// 📄 PARSE SITEMAP XML
 // ═══════════════════════════════════════════════════════════════════════════════
 
-function parseXmlSitemap(xml: string): { urls: string[]; sitemaps: string[] } {
+function parseUrlsFromXml(xmlText: string): string[] {
     const urls: string[] = [];
-    const sitemaps: string[] = [];
     
-    // Extract URLs from <loc> tags
-    const locMatches = xml.matchAll(/<loc[^>]*>([^<]+)<\/loc>/gi);
-    for (const match of locMatches) {
+    // Extract <loc> tags
+    const locRegex = /<loc>([^<]+)<\/loc>/gi;
+    let match;
+    
+    while ((match = locRegex.exec(xmlText)) !== null) {
         const url = match[1].trim();
-        if (url) {
-            // Check if it's a sitemap or a page URL
-            if (url.includes('sitemap') && url.endsWith('.xml')) {
-                sitemaps.push(url);
-            } else {
-                urls.push(url);
-            }
+        if (url && url.startsWith('http')) {
+            urls.push(url);
         }
     }
     
-    // Also check for sitemap index entries
-    const sitemapMatches = xml.matchAll(/<sitemap[^>]*>[\s\S]*?<loc[^>]*>([^<]+)<\/loc>[\s\S]*?<\/sitemap>/gi);
-    for (const match of sitemapMatches) {
-        const url = match[1].trim();
-        if (url && !sitemaps.includes(url)) {
-            sitemaps.push(url);
-        }
-    }
-    
-    return { urls, sitemaps };
+    return urls;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// 🔍 DISCOVER SITEMAP URLS
-// ═══════════════════════════════════════════════════════════════════════════════
-
-async function discoverSitemapUrls(
-    baseUrl: string,
-    log: LogFunction
-): Promise<string[]> {
-    const domain = extractDomain(baseUrl);
-    
-    // Common sitemap locations
-    const possibleSitemaps = [
-        `${domain}/sitemap.xml`,
-        `${domain}/sitemap_index.xml`,
-        `${domain}/post-sitemap.xml`,
-        `${domain}/page-sitemap.xml`,
-        `${domain}/wp-sitemap.xml`,
-        `${domain}/sitemap-posts.xml`,
-        `${domain}/news-sitemap.xml`,
-    ];
-    
-    // If user provided a specific sitemap URL, try it first
-    if (baseUrl.includes('sitemap') && baseUrl.endsWith('.xml')) {
-        possibleSitemaps.unshift(baseUrl);
-    }
-    
-    const discoveredSitemaps: string[] = [];
-    
-    for (const sitemapUrl of possibleSitemaps) {
-        try {
-            log(`   🔍 Checking: ${sitemapUrl}`);
-            
-            const xml = await fetchWithCorsProxy(sitemapUrl, log, 10000);
-            
-            if (xml) {
-                discoveredSitemaps.push(sitemapUrl);
-                log(`   ✅ Found sitemap: ${sitemapUrl}`);
-                
-                // If this is a sitemap index, we've found what we need
-                if (xml.includes('<sitemapindex')) {
-                    break;
-                }
-            }
-        } catch {
-            // Continue to next
-        }
-        
-        await sleep(300);
-    }
-    
-    return discoveredSitemaps;
+function isSitemapIndex(xmlText: string): boolean {
+    return xmlText.includes('<sitemapindex') || 
+           (xmlText.includes('<sitemap>') && !xmlText.includes('<url>'));
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -232,129 +143,131 @@ export async function crawlSitemap(
     sitemapUrl: string,
     log: LogFunction,
     onProgress?: (current: number, total: number) => void,
-    maxUrls: number = 500
+    options: {
+        maxUrls?: number;
+        maxDepth?: number;
+        filterPosts?: boolean;
+        excludePatterns?: string[];
+    } = {}
 ): Promise<CrawledPage[]> {
-    const startTime = Date.now();
+    const {
+        maxUrls = 500,
+        maxDepth = 2,
+        filterPosts = true,
+        excludePatterns = ['/tag/', '/category/', '/author/', '/page/', '/feed/', '/wp-json/', '/wp-admin/', '/cart/', '/checkout/', '/my-account/']
+    } = options;
     
-    log(`🕷️ ULTRA-FAST SITEMAP CRAWLER v${SITEMAP_CRAWLER_VERSION}`);
-    log(`🕷️ URL: ${sitemapUrl}`);
+    log(`🕷️ SITEMAP CRAWLER v${SITEMAP_CRAWLER_VERSION}`);
+    log(`   → URL: ${sitemapUrl}`);
+    log(`   → Max URLs: ${maxUrls}`);
     
     const allUrls = new Set<string>();
+    const sitemapsToProcess: Array<{ url: string; depth: number }> = [{ url: sitemapUrl, depth: 0 }];
     const processedSitemaps = new Set<string>();
-    const sitemapsToProcess: string[] = [];
     
-    // Discover sitemaps
-    const discoveredSitemaps = await discoverSitemapUrls(sitemapUrl, log);
-    
-    if (discoveredSitemaps.length === 0) {
-        // Try the provided URL directly
-        sitemapsToProcess.push(sitemapUrl);
-    } else {
-        sitemapsToProcess.push(...discoveredSitemaps);
-    }
-    
-    // Process sitemaps recursively
+    // Process sitemaps (handle sitemap index)
     while (sitemapsToProcess.length > 0 && allUrls.size < maxUrls) {
-        const currentSitemap = sitemapsToProcess.shift()!;
+        const { url: currentUrl, depth } = sitemapsToProcess.shift()!;
         
-        if (processedSitemaps.has(currentSitemap)) {
-            continue;
-        }
+        if (processedSitemaps.has(currentUrl) || depth > maxDepth) continue;
+        processedSitemaps.add(currentUrl);
         
-        processedSitemaps.add(currentSitemap);
-        
-        log(`   📄 Processing: ${currentSitemap}`);
+        log(`   📄 Processing: ${currentUrl}`);
         
         try {
-            const xml = await fetchWithCorsProxy(currentSitemap, log);
-            const { urls, sitemaps } = parseXmlSitemap(xml);
+            const xmlText = await fetchWithCorsProxy(currentUrl, log);
+            const urls = parseUrlsFromXml(xmlText);
             
-            log(`   📊 Found ${urls.length} URLs, ${sitemaps.length} sub-sitemaps`);
+            log(`      → Found ${urls.length} URLs`);
             
-            // Add URLs
-            for (const url of urls) {
-                if (allUrls.size >= maxUrls) break;
-                
-                const normalized = normalizeUrl(url);
-                
-                // Skip non-content URLs
-                if (
-                    normalized.includes('/wp-admin') ||
-                    normalized.includes('/wp-content') ||
-                    normalized.includes('/wp-includes') ||
-                    normalized.includes('/feed') ||
-                    normalized.includes('/tag/') ||
-                    normalized.includes('/author/') ||
-                    normalized.includes('/page/') ||
-                    normalized.includes('?') ||
-                    normalized.includes('#') ||
-                    normalized.endsWith('.xml') ||
-                    normalized.endsWith('.jpg') ||
-                    normalized.endsWith('.png') ||
-                    normalized.endsWith('.pdf')
-                ) {
-                    continue;
+            if (isSitemapIndex(xmlText)) {
+                // This is a sitemap index - queue child sitemaps
+                for (const childUrl of urls) {
+                    if (childUrl.includes('sitemap') && childUrl.endsWith('.xml')) {
+                        sitemapsToProcess.push({ url: childUrl, depth: depth + 1 });
+                    }
                 }
-                
-                allUrls.add(url);
-            }
-            
-            // Queue sub-sitemaps
-            for (const sitemap of sitemaps) {
-                if (!processedSitemaps.has(sitemap)) {
-                    sitemapsToProcess.push(sitemap);
+                log(`      → Queued ${urls.length} child sitemaps`);
+            } else {
+                // Regular sitemap - add URLs
+                for (const pageUrl of urls) {
+                    if (allUrls.size >= maxUrls) break;
+                    
+                    // Filter excluded patterns
+                    const urlLower = pageUrl.toLowerCase();
+                    const isExcluded = excludePatterns.some(p => urlLower.includes(p.toLowerCase()));
+                    
+                    if (!isExcluded) {
+                        allUrls.add(pageUrl);
+                    }
                 }
             }
             
             onProgress?.(allUrls.size, maxUrls);
             
         } catch (e: any) {
-            log(`   ❌ Error: ${e.message}`);
+            log(`   ❌ Failed to process ${currentUrl}: ${e.message}`);
         }
         
-        await sleep(200);
+        // Small delay to avoid rate limiting
+        await sleep(100);
     }
     
-    log(`🔍 Found ${allUrls.size} valid URLs`);
+    log(`   📊 Total URLs collected: ${allUrls.size}`);
     
     // Convert to CrawledPage objects
-    const pages: CrawledPage[] = Array.from(allUrls).map(url => {
-        const slug = extractSlugFromUrl(url);
-        return {
-            url,
-            title: extractTitleFromSlug(slug),
-            slug,
-            excerpt: '',
-            categories: [],
-            wordCount: 0,
-            lastModified: new Date().toISOString()
-        };
-    });
+    const pages: CrawledPage[] = [];
+    let idx = 0;
     
-    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-    log(`🎉 CRAWL COMPLETE: ${pages.length} pages in ${elapsed}s`);
+    for (const url of allUrls) {
+        const slug = extractSlugFromUrl(url);
+        const title = extractTitleFromSlug(slug);
+        
+        pages.push({
+            id: `page-${idx++}-${Date.now()}`,
+            url,
+            title: title || url,
+            slug,
+            healthScore: null,
+            wordCount: 0,
+            seoMetrics: undefined,
+            jobState: { status: 'idle' }
+        });
+    }
+    
+    log(`✅ Crawl complete: ${pages.length} pages ready`);
     
     return pages;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// 🔄 CONVERT TO INTERNAL LINK TARGETS
+// 🔗 CONVERT TO INTERNAL LINK TARGETS
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export function convertToInternalLinkTargets(pages: CrawledPage[]): InternalLinkTarget[] {
-    return pages.map(page => ({
-        url: page.url,
-        title: page.title,
-        slug: page.slug,
-        excerpt: page.excerpt,
-        categories: page.categories,
-        relevanceScore: 0.5
-    }));
+    return pages
+        .filter(p => p.url && p.title && p.title.length >= 10)
+        .map(p => ({
+            url: p.url,
+            title: p.title,
+            slug: p.slug,
+            excerpt: p.excerpt,
+            categories: p.categories,
+            keywords: p.title
+                .toLowerCase()
+                .replace(/[^a-z0-9\s]/g, '')
+                .split(/\s+/)
+                .filter(w => w.length > 3)
+                .slice(0, 10)
+        }));
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 📤 EXPORTS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export default crawlSitemap;
-
+export default {
+    SITEMAP_CRAWLER_VERSION,
+    crawlSitemap,
+    convertToInternalLinkTargets
+};
