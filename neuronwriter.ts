@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════════════
-// WP OPTIMIZER PRO v39.0 — NEURONWRITER NLP TERM PARSER
+// WP OPTIMIZER PRO v39.0 — NEURONWRITER INTEGRATION
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { NeuronTerm } from './types';
@@ -7,76 +7,79 @@ import { NeuronTerm } from './types';
 export const NEURONWRITER_VERSION = "39.0.0";
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// 📊 PARSE NEURONWRITER CSV/TEXT
+// 📊 TYPES
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export function parseNeuronWriterTerms(input: string): NeuronTerm[] {
-    if (!input || typeof input !== 'string') return [];
+export interface NeuronWriterData {
+    terms: NeuronTerm[];
+    targetScore: number;
+    currentScore: number;
+    recommendations: string[];
+}
 
+export interface ParsedNeuronData {
+    terms: NeuronTerm[];
+    totalTerms: number;
+    criticalTerms: number;
+    headerTerms: number;
+    bodyTerms: number;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 🔧 PARSE NEURONWRITER CSV/TEXT
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export function parseNeuronWriterData(rawData: string): ParsedNeuronData {
     const terms: NeuronTerm[] = [];
-    const lines = input.split('\n').map(l => l.trim()).filter(Boolean);
-
+    const lines = rawData.trim().split('\n');
+    
     for (const line of lines) {
-        // Skip headers
-        if (line.toLowerCase().includes('term') && line.toLowerCase().includes('type')) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('//')) {
             continue;
         }
-
-        // Try CSV format: term,type,recommended,importance
-        const csvParts = line.split(',').map(p => p.trim());
-        if (csvParts.length >= 2) {
-            const term = csvParts[0].replace(/["']/g, '');
-            const type = parseTermType(csvParts[1]);
-            const recommended = parseInt(csvParts[2]) || 1;
-            const importance = parseInt(csvParts[3]) || 50;
-
-            if (term.length >= 2) {
-                terms.push({ term, type, recommended, importance });
-                continue;
+        
+        // Try to parse as CSV: term,type,importance,recommended
+        const parts = trimmed.split(/[,\t;|]+/).map(p => p.trim());
+        
+        if (parts.length >= 1 && parts[0].length > 0) {
+            const term = parts[0];
+            const typeRaw = parts[1]?.toLowerCase() || 'body';
+            const importance = parseInt(parts[2]) || 50;
+            const recommended = parseInt(parts[3]) || 3;
+            
+            // Map type to valid NeuronTerm type
+            let type: NeuronTerm['type'] = 'body';
+            if (typeRaw.includes('critical')) {
+                type = 'critical';
+            } else if (typeRaw.includes('title')) {
+                type = 'title';
+            } else if (typeRaw.includes('header') || typeRaw.includes('h2') || typeRaw.includes('h3')) {
+                type = 'header';
+            } else {
+                type = 'body';
             }
-        }
-
-        // Try tab-separated format
-        const tabParts = line.split('\t').map(p => p.trim());
-        if (tabParts.length >= 2) {
-            const term = tabParts[0].replace(/["']/g, '');
-            const type = parseTermType(tabParts[1]);
-            const recommended = parseInt(tabParts[2]) || 1;
-            const importance = parseInt(tabParts[3]) || 50;
-
-            if (term.length >= 2) {
-                terms.push({ term, type, recommended, importance });
-                continue;
-            }
-        }
-
-        // Try simple format: just the term
-        if (line.length >= 2 && !line.includes(':')) {
+            
             terms.push({
-                term: line,
-                type: 'basic',
-                recommended: 1,
-                importance: 50,
+                term,
+                type,
+                importance,
+                recommended
             });
         }
     }
-
-    // Remove duplicates
-    const seen = new Set<string>();
-    return terms.filter(t => {
-        const key = t.term.toLowerCase();
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-    });
-}
-
-function parseTermType(typeStr: string): NeuronTerm['type'] {
-    const lower = typeStr.toLowerCase();
-    if (lower.includes('title')) return 'title';
-    if (lower.includes('header') || lower.includes('h2') || lower.includes('h3')) return 'header';
-    if (lower.includes('extended') || lower.includes('secondary')) return 'extended';
-    return 'basic';
+    
+    const criticalTerms = terms.filter(t => t.type === 'critical').length;
+    const headerTerms = terms.filter(t => t.type === 'header' || t.type === 'title').length;
+    const bodyTerms = terms.filter(t => t.type === 'body').length;
+    
+    return {
+        terms,
+        totalTerms: terms.length,
+        criticalTerms,
+        headerTerms,
+        bodyTerms
+    };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -85,11 +88,9 @@ function parseTermType(typeStr: string): NeuronTerm['type'] {
 
 export interface NLPCoverageResult {
     score: number;
-    weightedScore: number;
-    totalTerms: number;
-    usedTerms: number;
+    usedTerms: Array<NeuronTerm & { count: number }>;
     missingTerms: NeuronTerm[];
-    usedDetails: Array<NeuronTerm & { count: number }>;
+    criticalMissing: NeuronTerm[];
 }
 
 export function calculateNLPCoverage(
@@ -99,55 +100,89 @@ export function calculateNLPCoverage(
     if (!content || terms.length === 0) {
         return {
             score: 100,
-            weightedScore: 100,
-            totalTerms: 0,
-            usedTerms: 0,
+            usedTerms: [],
             missingTerms: [],
-            usedDetails: [],
+            criticalMissing: []
         };
     }
-
+    
     const contentLower = content.toLowerCase();
-    const usedDetails: Array<NeuronTerm & { count: number }> = [];
+    const usedTerms: Array<NeuronTerm & { count: number }> = [];
     const missingTerms: NeuronTerm[] = [];
-
-    let totalWeight = 0;
-    let usedWeight = 0;
-
+    
     for (const term of terms) {
         const termLower = term.term.toLowerCase();
         const escaped = termLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const regex = new RegExp(`\\b${escaped}\\b`, 'gi');
-        const matches = contentLower.match(regex);
-        const count = matches?.length || 0;
-
-        const weight = term.importance || 50;
-        totalWeight += weight;
-
+        const matches = contentLower.match(regex) || [];
+        const count = matches.length;
+        
         if (count > 0) {
-            usedDetails.push({ ...term, count });
-            usedWeight += weight;
+            usedTerms.push({ ...term, count });
         } else {
             missingTerms.push(term);
         }
     }
-
+    
     const score = terms.length > 0
-        ? Math.round((usedDetails.length / terms.length) * 100)
+        ? Math.round((usedTerms.length / terms.length) * 100)
         : 100;
-
-    const weightedScore = totalWeight > 0
-        ? Math.round((usedWeight / totalWeight) * 100)
-        : 100;
-
+    
+    const criticalMissing = missingTerms.filter(t => 
+        t.type === 'critical' || t.importance >= 80
+    );
+    
     return {
         score,
-        weightedScore,
-        totalTerms: terms.length,
-        usedTerms: usedDetails.length,
+        usedTerms,
         missingTerms,
-        usedDetails,
+        criticalMissing
     };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 🎯 GENERATE TERM-OPTIMIZED PROMPT
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export function generateNLPOptimizedPrompt(
+    basePrompt: string,
+    terms: NeuronTerm[],
+    maxTermsToInclude: number = 30
+): string {
+    if (terms.length === 0) return basePrompt;
+    
+    // Sort by importance and take top terms
+    const sortedTerms = [...terms]
+        .sort((a, b) => b.importance - a.importance)
+        .slice(0, maxTermsToInclude);
+    
+    const criticalTerms = sortedTerms
+        .filter(t => t.type === 'critical')
+        .map(t => t.term);
+    
+    const headerTerms = sortedTerms
+        .filter(t => t.type === 'header' || t.type === 'title')
+        .map(t => t.term);
+    
+    const bodyTerms = sortedTerms
+        .filter(t => t.type === 'body')
+        .map(t => t.term);
+    
+    let nlpSection = '\n\n## NLP OPTIMIZATION REQUIREMENTS:\n';
+    
+    if (criticalTerms.length > 0) {
+        nlpSection += `\n### CRITICAL TERMS (must appear 3+ times each):\n${criticalTerms.join(', ')}\n`;
+    }
+    
+    if (headerTerms.length > 0) {
+        nlpSection += `\n### HEADER TERMS (include in H2/H3 headings):\n${headerTerms.join(', ')}\n`;
+    }
+    
+    if (bodyTerms.length > 0) {
+        nlpSection += `\n### BODY TERMS (include naturally throughout):\n${bodyTerms.join(', ')}\n`;
+    }
+    
+    return basePrompt + nlpSection;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -156,6 +191,7 @@ export function calculateNLPCoverage(
 
 export default {
     NEURONWRITER_VERSION,
-    parseNeuronWriterTerms,
+    parseNeuronWriterData,
     calculateNLPCoverage,
+    generateNLPOptimizedPrompt
 };
