@@ -1732,8 +1732,8 @@ OUTPUT JSON:
 
                 if (parsed.success && parsed.data?.htmlContent) {
                     rawContract = parsed.data;
-                    log(`   📄 Content generated: ${(countWordsOf(rawContract!.htmlContent))} words `);                    break;
-                }
+                    log(`   📄 Content generated: ${countWords(rawContract!.htmlContent)} words `);
+                                    break;}
             } catch (e: any) {
                 log(`   ❌ Error: ${e.message}`);
             }
