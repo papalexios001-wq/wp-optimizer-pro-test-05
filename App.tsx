@@ -542,7 +542,6 @@ export default function App() {
 
       // Persist enterprise configuration (Site Context + Optimization Config)
 
-          // Persist enterprise configuration (Site Context + Optimization Config)
   useEffect(() => {
     const enterpriseConfig = {
       siteContext,
@@ -552,7 +551,6 @@ export default function App() {
     };
     saveEnterpriseConfig(enterpriseConfig);
   }, [siteContext, optimizationConfig]);
-    }, [useCustomOpenRouterModel, useCustomGroqModel, customOpenRouterModel, customGroqModel]);
     
     // Load custom model settings on mount
     useEffect(() => {
