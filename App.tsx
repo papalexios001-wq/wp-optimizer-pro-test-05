@@ -34,6 +34,16 @@ import {
     BulkGenerationResult,
     APIKeyConfig
 } from './types';
+import {
+  SiteContext,
+  OptimizationConfig,
+  DEFAULT_SITE_CONTEXT,
+  DEFAULT_OPTIMIZATION_CONFIG,
+  INDUSTRY_OPTIONS,
+  validateSiteContext,
+  loadEnterpriseConfig,
+  saveEnterpriseConfig
+} from './types/enterprise-config';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 🎨 ENTERPRISE DESIGN TOKENS
@@ -458,6 +468,20 @@ export default function App() {
     });
     const [wpConnected, setWpConnected] = useState(false);
     const [wpSiteName, setWpSiteName] = useState('');
+
+      // ═══════════════════════════════════════════════════════════════════════════
+  // 🏢 SITE CONTEXT & OPTIMIZATION CONFIG STATE (SOTA v41.0)
+  // ═══════════════════════════════════════════════════════════════════════════
+  
+  const [siteContext, setSiteContext] = useState<SiteContext>(() => {
+    const loaded = loadEnterpriseConfig();
+    return loaded?.siteContext || DEFAULT_SITE_CONTEXT;
+  });
+  
+  const [optimizationConfig, setOptimizationConfig] = useState<OptimizationConfig>(() => {
+    const loaded = loadEnterpriseConfig();
+    return loaded?.optimization || DEFAULT_OPTIMIZATION_CONFIG;
+  });
     
     // Refs
     const logContainerRef = useRef<HTMLDivElement>(null);
@@ -514,6 +538,17 @@ export default function App() {
             customOpenRouterModel,
             customGroqModel
         }));
+
+          // Persist enterprise configuration (Site Context + Optimization Config)
+  useEffect(() => {
+    const enterpriseConfig = {
+      siteContext,
+      optimization: optimizationConfig,
+      lastUpdated: Date.now(),
+      version: '41.0'
+    };
+    saveEnterpriseConfig(enterpriseConfig);
+  }, [siteContext, optimizationConfig]);
     }, [useCustomOpenRouterModel, useCustomGroqModel, customOpenRouterModel, customGroqModel]);
     
     // Load custom model settings on mount
