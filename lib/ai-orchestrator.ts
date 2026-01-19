@@ -28,6 +28,23 @@ import {
     ValidatedReference
 } from '../types';
 
+// ✅ Enterprise Integration - SOTA modules for 10000x quality improvement
+import {
+  generateEnhancedBlogPost,
+  enhanceExistingContent,
+  generateVisualEnhancements,
+  ReadabilityAnalyzer,
+  ContentHumanizer,
+  RichAnchorTextLinker,
+  SEOAnalyzer,
+  generateArticleSchema,
+  generateFAQSchema,
+  generateMetaTags,
+  generateSEOScoreCard,
+  type EnhancedBlogConfig,
+  type EnhancedBlogResult
+} from './enterprise-integration';
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // 📌 VERSION & CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════════════

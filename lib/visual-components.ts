@@ -74,6 +74,9 @@ export const TOKENS = {
     radiusLg: '16px',
     radiusXl: '20px',
     radiusXxl: '24px',
+  radiusXL: '20px',
+  radiusFull: '9999px',
+  radiusLG: '16px',
 } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -497,6 +500,81 @@ export function createReferencesSection(references: DiscoveredReference[]): stri
 }
 
 // ============================================================================
+// ENTERPRISE VISUAL GENERATORS (for enterprise-integration.ts)
+// ============================================================================
+
+/**
+ * Generate a hero section with gradient background
+ */
+export function generateHeroSection(title: string, subtitle: string): string {
+  return `
+    <section style="background: linear-gradient(135deg, ${TOKENS.primary} 0%, ${TOKENS.primaryDark} 100%) !important; padding: 60px 30px !important; border-radius: ${TOKENS.radiusXL} !important; margin: 40px 0 !important; text-align: center !important;">
+      <h1 style="color: ${TOKENS.white} !important; font-size: 2.5rem !important; font-weight: 800 !important; margin: 0 0 15px 0 !important;">${escapeHtml(title)}</h1>
+      <p style="color: ${TOKENS.gray100} !important; font-size: 1.2rem !important; margin: 0 !important; max-width: 600px !important; margin: 0 auto !important;">${escapeHtml(subtitle)}</p>
+    </section>
+  `;
+}
+
+/**
+ * Generate a progress indicator bar
+ */
+export function generateProgressIndicator(label: string, percentage: number, color?: string): string {
+  const barColor = color || TOKENS.success;
+  return `
+    <div style="margin: 20px 0 !important;">
+      <div style="display: flex !important; justify-content: space-between !important; margin-bottom: 8px !important;">
+        <span style="font-weight: 600 !important; color: ${TOKENS.gray800} !important;">${escapeHtml(label)}</span>
+        <span style="color: ${TOKENS.gray500} !important;">${percentage}%</span>
+      </div>
+      <div style="background: ${TOKENS.gray200} !important; border-radius: ${TOKENS.radiusFull} !important; height: 12px !important; overflow: hidden !important;">
+        <div style="background: ${barColor} !important; height: 100% !important; width: ${Math.min(100, Math.max(0, percentage))}% !important; border-radius: ${TOKENS.radiusFull} !important; transition: width 0.5s ease !important;"></div>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Generate a before/after comparison slider
+ */
+export function generateBeforeAfterSlider(beforeText: string, afterText: string, beforeLabel?: string, afterLabel?: string): string {
+  return `
+    <div style="display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 20px !important; margin: 30px 0 !important;">
+      <div style="background: ${TOKENS.dangerBg} !important; border: 2px solid ${TOKENS.danger} !important; border-radius: ${TOKENS.radiusLG} !important; padding: 20px !important;">
+        <div style="display: flex !important; align-items: center !important; gap: 8px !important; margin-bottom: 12px !important;">
+          <span style="font-size: 1.2rem !important;">❌</span>
+          <span style="font-weight: 700 !important; color: ${TOKENS.danger} !important;">${escapeHtml(beforeLabel || 'Before')}</span>
+        </div>
+        <p style="color: ${TOKENS.gray700} !important; margin: 0 !important; line-height: 1.6 !important;">${escapeHtml(beforeText)}</p>
+      </div>
+      <div style="background: ${TOKENS.successBg} !important; border: 2px solid ${TOKENS.success} !important; border-radius: ${TOKENS.radiusLG} !important; padding: 20px !important;">
+        <div style="display: flex !important; align-items: center !important; gap: 8px !important; margin-bottom: 12px !important;">
+          <span style="font-size: 1.2rem !important;">✅</span>
+          <span style="font-weight: 700 !important; color: ${TOKENS.success} !important;">${escapeHtml(afterLabel || 'After')}</span>
+        </div>
+        <p style="color: ${TOKENS.gray700} !important; margin: 0 !important; line-height: 1.6 !important;">${escapeHtml(afterText)}</p>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Generate a social proof counter section
+ */
+export function generateSocialProofCounter(stats: Array<{value: string; label: string}>): string {
+  const statsHtml = stats.map(stat => `
+    <div style="text-align: center !important;">
+      <div style="font-size: 2.5rem !important; font-weight: 800 !important; color: ${TOKENS.primary} !important; line-height: 1 !important;">${escapeHtml(stat.value)}</div>
+      <div style="font-size: 0.9rem !important; color: ${TOKENS.gray500} !important; margin-top: 8px !important;">${escapeHtml(stat.label)}</div>
+    </div>
+  `).join('');
+
+  return `
+    <section style="background: ${TOKENS.gray50} !important; border-radius: ${TOKENS.radiusXL} !important; padding: 40px !important; margin: 40px 0 !important;">
+      <div style="display: flex !important; justify-content: space-around !important; flex-wrap: wrap !important; gap: 30px !important;">
+        ${statsHtml}
+      </div>
+    </section>
+  `;
 // NEW MOBILE-FIRST VISUAL COMPONENTS
 // ============================================================================
 
@@ -604,6 +682,11 @@ export default {
     createComparisonTable,
     createHighlightBox,
     createYouTubeEmbed,
+    createReferencesSection,
+  generateHeroSection,
+  generateProgressIndicator,
+  generateBeforeAfterSlider,
+  generateSocialProofCounter
     createReferencesSection
   // NEW: Mobile-First Hero Section
   createMobileFirstHeroSection,
