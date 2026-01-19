@@ -32,10 +32,10 @@ import {
     publishToWordPress,
     WordPressConfig
 } from './lib/wordpress-publisher';
+import { updateExistingPost, fetchExistingPost, batchUpdatePosts } from './lib/wordpress-post-updater';
 import {
     ContentContract,
     GenerateConfig,
-    CrawledPage,
     InternalLinkTarget,
     BulkGenerationResult,
     APIKeyConfig
@@ -488,6 +488,8 @@ export default function App() {
     
     // WordPress State
     const [wpConfig, setWpConfig] = useState<WordPressConfig>(() => {
+          const [selectedUrls, setSelectedUrls] = useState<Set<string>>(new Set());
+  const [isOptimizingExisting, setIsOptimizingExisting] = useState<boolean>(false);
         const saved = localStorage.getItem('wpo_wp_config_v2');
         return saved ? JSON.parse(saved) : { siteUrl: '', username: '', applicationPassword: '' };
     });
@@ -697,7 +699,113 @@ export default function App() {
     // ═══════════════════════════════════════════════════════════════════════════
     // 🚀 CONTENT GENERATION
     // ═══════════════════════════════════════════════════════════════════════════
-    
+
+
+      // ═══════════════════════════════════════════════════════════════════════════════
+  // 🔄 EXISTING POST OPTIMIZATION
+  // ═══════════════════════════════════════════════════════════════════════════════
+
+  const handleOptimizeSelected = useCallback(async () => {
+    if (selectedUrls.size === 0) {
+      log('⚠️ Please select at least one URL to optimize');
+      return;
+    }
+
+    setIsOptimizingExisting(true);
+    const urlsArray = Array.from(selectedUrls);
+    log(`🚀 Starting optimization for ${urlsArray.length} existing posts...`);
+
+    try {
+      for (const url of urlsArray) {
+        try {
+          log(`📥 Fetching existing post: ${url}`);
+          
+          // Fetch the existing post content
+          const existingPost = await fetchExistingPost(url, wpConfig);
+          
+          if (!existingPost) {
+            log(`❌ Could not fetch post at ${url}`);
+            continue;
+          }
+
+          log(`✨ Optimizing content for: ${existingPost.title}`);
+
+          // Create optimization request
+          const config: GenerateConfig = {
+            topic: existingPost.title,
+            targetWordCount: existingPost.content?.length || 2000,
+            realTimeStats: optimizationConfig.realTimeStats,
+            preserveImages: optimizationConfig.preserveImages,
+            preserveCategories: optimizationConfig.preserveCategories,
+            preserveTags: optimizationConfig.preserveTags,
+            optimizationMode: optimizationConfig.optimizationMode,
+          };
+
+          // Generate optimized content
+          const result = await orchestrator.generateContent(config, apiKeys, siteContext);
+
+          if (!result.success || !result.content) {
+            log(`❌ Optimization failed for ${url}`);
+            continue;
+          }
+
+          log(`📤 Updating post on WordPress: ${url}`);
+
+          // Update the existing post
+          const updateResult = await updateExistingPost(
+            url,
+            {
+              title: optimizationConfig.optimizationMode === 'surgical' ? existingPost.title : result.content.title,
+              content: result.content.content,
+              excerpt: result.content.metaDescription,
+              categories: optimizationConfig.preserveCategories ? existingPost.categories : undefined,
+              tags: optimizationConfig.preserveTags ? existingPost.tags : undefined,
+            },
+            wpConfig,
+            existingPost.credentials
+          );
+
+          if (updateResult.success) {
+            log(`✅ Successfully updated: ${existingPost.title}`);
+          } else {
+            log(`❌ Update failed: ${updateResult.message}`);
+          }
+        } catch (error: any) {
+          log(`❌ Error optimizing ${url}: ${error.message}`);
+        }
+      }
+
+      log(`✅ Completed optimization of ${urlsArray.length} existing posts`);
+    } catch (error: any) {
+      log(`❌ Batch optimization error: ${error.message}`);
+    } finally {
+      setIsOptimizingExisting(false);
+      setSelectedUrls(new Set());
+    }
+  }, [selectedUrls, wpConfig, optimizationConfig, apiKeys, siteContext, log]);
+
+  // Helper function to toggle URL selection
+  const toggleUrlSelection = (url: string) => {
+    setSelectedUrls(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(url)) {
+        newSet.delete(url);
+      } else {
+        newSet.add(url);
+      }
+      return newSet;
+    });
+  };
+
+  // Helper function to select all URLs
+  const selectAllUrls = () => {
+    setSelectedUrls(new Set(crawledPages.map(p => p.url)));
+  };
+
+  // Helper function to deselect all URLs
+  const deselectAllUrls = () => {
+    setSelectedUrls(new Set());
+  };
     const handleGenerate = useCallback(async () => {
         if (!topic.trim()) {
             log('❌ Please enter a topic');
