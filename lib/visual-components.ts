@@ -496,6 +496,94 @@ export function createReferencesSection(references: DiscoveredReference[]): stri
 </section>`;
 }
 
+// ============================================================================
+// NEW MOBILE-FIRST VISUAL COMPONENTS
+// ============================================================================
+
+/**
+ * Creates a mobile-first hero section with responsive design
+ */
+export function createMobileFirstHeroSection(
+  title: string,
+  subtitle: string,
+  ctaText: string,
+  ctaUrl: string
+): string {
+  return `
+<section style="background: linear-gradient(135deg, ${TOKENS.primary} 0%, ${TOKENS.primaryDark} 100%) !important; padding: 48px 20px !important; border-radius: ${TOKENS.radiusXl} !important; margin: 24px 0 !important; text-align: center !important;">
+  <h1 style="font-size: clamp(28px, 5vw, 48px) !important; font-weight: 800 !important; color: white !important; margin: 0 0 16px 0 !important; line-height: 1.2 !important;">${escapeHtml(title)}</h1>
+  <p style="font-size: clamp(16px, 3vw, 20px) !important; color: rgba(255,255,255,0.9) !important; margin: 0 0 24px 0 !important; max-width: 600px !important; margin-left: auto !important; margin-right: auto !important;">${escapeHtml(subtitle)}</p>
+  <a href="${escapeHtml(ctaUrl)}" style="display: inline-block !important; background: white !important; color: ${TOKENS.primary} !important; padding: 16px 32px !important; border-radius: ${TOKENS.radiusMd} !important; font-weight: 700 !important; font-size: 18px !important; text-decoration: none !important; transition: transform 0.2s !important;">${escapeHtml(ctaText)}</a>
+</section>`;
+}
+
+/**
+ * Creates an animated progress indicator
+ */
+export function createAnimatedProgressIndicator(
+  percentage: number,
+  label: string
+): string {
+  const clampedPercent = Math.min(100, Math.max(0, percentage));
+  return `
+<div style="background: ${TOKENS.gray50} !important; border-radius: ${TOKENS.radiusMd} !important; padding: 20px !important; margin: 16px 0 !important;">
+  <div style="display: flex !important; justify-content: space-between !important; margin-bottom: 8px !important;">
+    <span style="font-weight: 600 !important; color: ${TOKENS.gray700} !important;">${escapeHtml(label)}</span>
+    <span style="font-weight: 700 !important; color: ${TOKENS.primary} !important;">${clampedPercent}%</span>
+  </div>
+  <div style="background: ${TOKENS.gray200} !important; border-radius: ${TOKENS.radiusSm} !important; height: 12px !important; overflow: hidden !important;">
+    <div style="background: linear-gradient(90deg, ${TOKENS.primary}, ${TOKENS.primaryLight}) !important; width: ${clampedPercent}% !important; height: 100% !important; border-radius: ${TOKENS.radiusSm} !important; transition: width 1s ease-out !important;"></div>
+  </div>
+</div>`;
+}
+
+/**
+ * Creates an interactive before/after comparison slider
+ */
+export function createBeforeAfterSlider(
+  beforeLabel: string,
+  afterLabel: string,
+  beforeItems: string[],
+  afterItems: string[]
+): string {
+  const beforeList = beforeItems.map(item => `<li style="padding: 8px 0 !important; border-bottom: 1px solid ${TOKENS.dangerBorder} !important; color: ${TOKENS.danger} !important;">❌ ${escapeHtml(item)}</li>`).join('');
+  const afterList = afterItems.map(item => `<li style="padding: 8px 0 !important; border-bottom: 1px solid ${TOKENS.successBorder} !important; color: ${TOKENS.success} !important;">✅ ${escapeHtml(item)}</li>`).join('');
+  
+  return `
+<div style="display: grid !important; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important; gap: 20px !important; margin: 24px 0 !important;">
+  <div style="background: ${TOKENS.dangerBg} !important; border: 2px solid ${TOKENS.dangerBorder} !important; border-radius: ${TOKENS.radiusMd} !important; padding: 20px !important;">
+    <h4 style="color: ${TOKENS.danger} !important; font-size: 18px !important; margin: 0 0 16px 0 !important;">❌ ${escapeHtml(beforeLabel)}</h4>
+    <ul style="list-style: none !important; padding: 0 !important; margin: 0 !important;">${beforeList}</ul>
+  </div>
+  <div style="background: ${TOKENS.successBg} !important; border: 2px solid ${TOKENS.successBorder} !important; border-radius: ${TOKENS.radiusMd} !important; padding: 20px !important;">
+    <h4 style="color: ${TOKENS.success} !important; font-size: 18px !important; margin: 0 0 16px 0 !important;">✅ ${escapeHtml(afterLabel)}</h4>
+    <ul style="list-style: none !important; padding: 0 !important; margin: 0 !important;">${afterList}</ul>
+  </div>
+</div>`;
+}
+
+/**
+ * Creates a social proof counter with animated numbers
+ */
+export function createSocialProofCounter(
+  stats: Array<{value: string; label: string; icon: string}>
+): string {
+  const statsHtml = stats.map(stat => `
+    <div style="text-align: center !important; padding: 16px !important;">
+      <div style="font-size: 32px !important; margin-bottom: 8px !important;">${stat.icon}</div>
+      <div style="font-size: clamp(24px, 4vw, 36px) !important; font-weight: 800 !important; color: ${TOKENS.primary} !important;">${escapeHtml(stat.value)}</div>
+      <div style="font-size: 14px !important; color: ${TOKENS.gray500} !important; margin-top: 4px !important;">${escapeHtml(stat.label)}</div>
+    </div>
+  `).join('');
+  
+  return `
+<div style="background: linear-gradient(180deg, ${TOKENS.primaryBg} 0%, white 100%) !important; border-radius: ${TOKENS.radiusXl} !important; padding: 32px 16px !important; margin: 24px 0 !important;">
+  <div style="display: grid !important; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)) !important; gap: 16px !important;">
+    ${statsHtml}
+  </div>
+</div>`;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // 📤 EXPORTS
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -517,4 +605,12 @@ export default {
     createHighlightBox,
     createYouTubeEmbed,
     createReferencesSection
+  // NEW: Mobile-First Hero Section
+  createMobileFirstHeroSection,
+  // NEW: Animated Progress Indicator
+  createAnimatedProgressIndicator,
+  // NEW: Interactive Before/After Slider
+  createBeforeAfterSlider,
+  // NEW: Social Proof Counter
+  createSocialProofCounter,
 };
