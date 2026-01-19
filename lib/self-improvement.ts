@@ -115,6 +115,7 @@ export class SelfImprovementEngine {
         'Update with latest information',
       ],
     };
+
     return actions[metric] || ['Review and optimize this metric'];
   }
 
@@ -130,12 +131,15 @@ export class SelfImprovementEngine {
       patterns.set(key, current);
     });
 
-    return Array.from(patterns.entries()).map(([pattern, stats]) => ({
-      pattern,
-      frequency: stats.total,
-      successRate: stats.total > 0 ? (stats.success / stats.total) * 100 : 0,
-      recommendation: this.getRecommendation(pattern, stats.successRate),
-    }));
+    return Array.from(patterns.entries()).map(([pattern, stats]) => {
+      const calculatedSuccessRate = stats.total > 0 ? (stats.success / stats.total) * 100 : 0;
+      return {
+        pattern,
+        frequency: stats.total,
+        successRate: calculatedSuccessRate,
+        recommendation: this.getRecommendation(pattern, calculatedSuccessRate),
+      };
+    });
   }
 
   private getRecommendation(pattern: string, successRate: number): string {
@@ -160,6 +164,7 @@ export class SelfImprovementEngine {
     });
 
     const suggestions = this.analyze();
+
     return {
       overallScore: count > 0 ? Math.round(totalScore / count) : 0,
       trends,
