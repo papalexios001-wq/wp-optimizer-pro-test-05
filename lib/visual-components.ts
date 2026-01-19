@@ -686,11 +686,11 @@ export default {
   generateHeroSection,
   generateProgressIndicator,
   generateBeforeAfterSlider,
-  generateSocialProofCounter
-    createReferencesSection
+  generateSocialProofCounter,
+    createReferencesSection,
   // NEW: Mobile-First Hero Section
   createMobileFirstHeroSection,
-  // NEW: Animated Progress Indicator
+  // NEW: Animated Progress Indicator,
   createAnimatedProgressIndicator,
   // NEW: Interactive Before/After Slider
   createBeforeAfterSlider,
