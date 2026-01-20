@@ -443,8 +443,7 @@ const validateModelFormat = (model: string, provider: 'openrouter' | 'groq'): { 
             return { valid: true, message: '✓ Valid format' };
         }
         return { valid: false, message: 'Invalid model format' };
-    }
-
+const [selectedUrls
     return { valid: true, message: '' };
 };
 
@@ -490,8 +489,7 @@ export default function App() {
     const [wpConfig, setWpConfig] = useState<WordPressConfig>(() => {
           const [selectedUrls, setSelectedUrls] = useState<Set<string>>(new Set());
   const [isOptimizingExisting, setIsOptimizingExisting] = useState<boolean>(false);
-  const [selectedUrls, setSelectedUrls] = useState<Set<string>>(new Set());        const saved = localStorage.getItem('wpo_wp_config_v2');
-        return saved ? JSON.parse(saved) : { siteUrl: '', username: '', applicationPassword: '' };
+          return saved ? JSON.parse(saved) : { siteUrl: '', username: '', applicationPassword: '' };
     });
     const [wpConnected, setWpConnected] = useState(false);
     const [wpSiteName, setWpSiteName] = useState('');
