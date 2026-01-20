@@ -738,3 +738,4 @@ export default function App() {
             catch (error) {
     log(`❌ Error during optimization: ${error.message}`);
   }
+          }, [log]);
