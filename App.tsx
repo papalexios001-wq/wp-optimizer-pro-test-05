@@ -617,8 +617,7 @@ export default function App() {
     
     // Load custom model settings on mount
     useEffect(() => {
-        487
-            = localStorage.getItem('wpo_custom_models');
+    const saved            = localStorage.getItem('wpo_custom_models');
         if (saved) {
             const parsed = JSON.parse(saved);
             setUseCustomOpenRouterModel(parsed.useCustomOpenRouterModel || false);
@@ -720,15 +719,13 @@ export default function App() {
           const config: GenerateConfig = {
             topic: existingPost.title,
             targetWordCount: existingPost.content?.length || 2000,
-            729
-                : optimizationConfig.realTimeStats,
+                realTimeStats: optimizationConfig.realTimeStats,
             preserveImages: optimizationConfig.preserveImages,
             preserveCategories: optimizationConfig.preserveCategories,
             preserveTags: optimizationConfig.preserveTags,
           };
 
           // Generate optimized content
-          const result = await 737
       const result = await orchestrator.generate(config, apiKeys, siteContext);
           if (!result.success || !result.content) {
             log(`❌ Optimization failed for ${url}`);
