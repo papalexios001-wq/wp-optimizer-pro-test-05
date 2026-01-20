@@ -242,8 +242,7 @@ export class CircuitBreaker {
 
   private emit(event: string, data: unknown): void {
     const callbacks = this.listeners.get(event) || [];
-    callbacks.forEach((h) => cb(data as any));  }
-
+    callbacks.forEach((h) => h(data as any)); }
   // Utility
   private sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
