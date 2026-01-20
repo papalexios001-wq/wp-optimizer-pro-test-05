@@ -38,7 +38,7 @@ import {
     GenerateConfig,
     InternalLinkTarget,
     BulkGenerationResult,
-    APIKeyConfig
+    APIKeyConfig, CrawledPage
 } from './types';
 import {
   OptimizationPage,
@@ -490,6 +490,7 @@ export default function App() {
     const [wpConfig, setWpConfig] = useState<WordPressConfig>(() => {
           const [selectedUrls, setSelectedUrls] = useState<Set<string>>(new Set());
   const [isOptimizingExisting, setIsOptimizingExisting] = useState<boolean>(false);
+          const [selectedUrl, setSelectedUrl] = useState<string>('');
         const saved = localStorage.getItem('wpo_wp_config_v2');
         return saved ? JSON.parse(saved) : { siteUrl: '', username: '', applicationPassword: '' };
     });
