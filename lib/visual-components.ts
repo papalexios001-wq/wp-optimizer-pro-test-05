@@ -664,7 +664,6 @@ export function createSocialProofCounter(
 </div>`;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
 // 📤 EXPORTS
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -684,8 +683,7 @@ export default {
     createComparisonTable,
     createHighlightBox,
     createYouTubeEmbed,
-    692
-        
+            
   generateHeroSection,
   generateProgressIndicator,
   generateBeforeAfterSlider,
