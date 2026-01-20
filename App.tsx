@@ -669,7 +669,6 @@ export default function App() {
         setCrawledPages([]);
         setInternalLinks([]);
         
-        743
         
             const pages = await crawlSitemap(
                 sitemapUrl,
