@@ -482,6 +482,14 @@ export default function App() {
     const saved = localStorage.getItem('wpo_wp_config_v2');
     return saved ? JSON.parse(saved) : { isStored: '', userNAME: '', applicationPassword: '' };
   });
+      const [sitemapUrl, setSitemapUrl] = useState('');
+      const [isCrawling, setIsCrawling] = useState(false);
+      const [crawledPages, setCrawledPages] = useState<CrawledPage[]>([]);
+      const [internalLinks, setInternalLinks] = useState<InternalLinkTarget[]>([]);
+      const [wpConnected, setWpConnected] = useState(false);
+      const [wpSiteName, setWpSiteName] = useState('');
+      const [selectedUrls, setSelectedUrls] = useState<Set<string>>(new Set());
+      const [isOptimizingExisting, setIsOptimizingExisting] = useState(false);
     
   // 🏢 SITE CONTEXT & OPTIMIZATION CONFIG STATE (SOTA v41.0)
   // ═══════════════════════════════════════════════════════════════════════════
