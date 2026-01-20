@@ -1,4 +1,5 @@
-l54
+l60
+  l54
 l54
 /**
  * WordPress Post Updater - Stub Implementation
@@ -56,7 +57,7 @@ export async function fetchExistingPost(
       credentials: {
         siteUrl: wpConfig.siteUrl,
         username: wpConfig.username,
-        applicationPassword: wpConfig.applicationPassword
+        applicationPassword: wpConfig.applicationPassword,
                 password: wpConfig.applicationPassword,
       }
     };
