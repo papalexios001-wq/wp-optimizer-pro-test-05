@@ -668,11 +668,11 @@ export default function App() {
         setIsCrawling(true);
         setCrawledPages([]);
         setInternalLinks([]);
-        
+        try {
         
             const pages = await crawlSitemap(
                 sitemapUrl,
-        try {
+        (current, total) => {
                     log(`   📊 Progress: ${current}/${total} URLs`);
                 }
             );
