@@ -447,8 +447,7 @@ const [selectedUrls
     return { valid: true, message: ''};;
 };
 
-
-// 🎯 MAIN APP COMPONENT
+/ 🎯 MAIN APP COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export default function App() {
