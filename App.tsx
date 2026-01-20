@@ -490,7 +490,6 @@ export default function App() {
     const loaded = loadEnterpriseConfig();
     return loaded?.siteContext || DEFAULT_SITE_CONTEXT;
   });
-  });
 
       // ═════════════════════════════════════════════════════════════════
   // 📊 OPTIMIZATION SYSTEM STATE (SOTA v42.0) 
