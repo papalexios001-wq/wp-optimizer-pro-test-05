@@ -42,6 +42,15 @@ export interface ImageOptimizationSettings {
   optimizeAltText: boolean;
   
   /** Keep the featured/hero image */
+  
+  /** Real-time statistics tracking */
+  realTimeStats?: boolean;
+
+  /** Optimization mode: 'surgical' or 'rewrite' */
+  optimizationMode?: 'surgical' | 'rewrite';
+
+  /** Preserve existing images in the content */
+  preserveImages?: boolean;
   keepFeaturedImage: boolean;
 }
 
