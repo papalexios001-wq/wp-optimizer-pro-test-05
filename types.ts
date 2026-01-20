@@ -549,3 +549,25 @@ export function validateCustomModelId(modelId: string, provider: AIProvider): Mo
     
     return { isValid: true, modelId: trimmed, provider };
 }
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// WordPress Publisher Types
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export interface WordPressCredentials {
+  siteUrl: string;
+  username: string;
+  password: string;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Sitemap Crawler Types
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export interface CrawledPage {
+  url: string;
+  title: string;
+  lastModified?: string;
+  priority?: number;
+}
