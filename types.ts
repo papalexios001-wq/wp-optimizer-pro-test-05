@@ -559,6 +559,7 @@ export interface WordPressCredentials {
   siteUrl: string;
   username: string;
   password: string;
+      applicationPassword?: string;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
