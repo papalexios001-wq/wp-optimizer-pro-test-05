@@ -669,7 +669,8 @@ export default function App() {
         setCrawledPages([]);
         setInternalLinks([]);
         
-        try {
+        743
+        
             const pages = await crawlSitemap(
                 sitemapUrl,
                 log,
@@ -698,7 +699,8 @@ export default function App() {
 
 
       // ═══════════════════════════════════════════════════════════════════════════════
-  // 🔄 EXISTING POST OPTIMIZATION
+705
+// 🔄 EXISTING POST OPTIMIZATION
   // ═══════════════════════════════════════════════════════════════════════════════
 
   const handleOptimizeSelected = useCallback(async () => {
@@ -711,9 +713,11 @@ export default function App() {
     const urlsArray = Array.from(selectedUrls);
     log(`🚀 Starting optimization for ${urlsArray.length} existing posts...`);
 
-    try {
+    743
+      
       for (const url of urlsArray) {
-        try {
+        743:1
+          
           log(`📥 Fetching existing post: ${url}`);
           
           // Fetch the existing post content
@@ -738,7 +742,8 @@ export default function App() {
       } catch (error: any) {
                     log(`❌ Error during optimization: ${error.message}`);
                   }
-} finally {
+743
+747
     setIsOptimizingExisting(false);
   }}, [log]);
 
@@ -746,3 +751,4 @@ export default function App() {
   return <div>Loading...</div>;
 }
     }
+757:1
