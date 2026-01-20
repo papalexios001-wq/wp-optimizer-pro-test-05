@@ -444,7 +444,7 @@ const validateModelFormat = (model: string, provider: 'openrouter' | 'groq'): { 
         }
         return { valid: false, message: 'Invalid model format' };
 const [selectedUrls
-    return { valid: true, message: '' };
+    return { valid: true, message: ''};;
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1769,3 +1769,4 @@ export default function App() {
         </div>
     );
 }
+    }
