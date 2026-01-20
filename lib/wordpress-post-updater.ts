@@ -1,6 +1,3 @@
-l60
-  l54
-l54
 /**
  * WordPress Post Updater - Stub Implementation
  * Provides functions for fetching and updating existing WordPress posts
