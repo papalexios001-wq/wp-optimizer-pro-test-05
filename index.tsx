@@ -8,8 +8,7 @@ import App from './App';
 
 // Global styles
 const globalStyles = `
-* {
-    margin: 0;
+import { default as App } from './App';    margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
