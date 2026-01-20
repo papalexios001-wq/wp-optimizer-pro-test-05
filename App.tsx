@@ -51,8 +51,6 @@ import {
   PageStatus,
   ActivityType,
   QuickOptimizeRequest,
-745
-    740
         BulkOptimizeRequest,
   PageQueueFilters,
   DEFAULT_ANALYTICS_METRICS,
