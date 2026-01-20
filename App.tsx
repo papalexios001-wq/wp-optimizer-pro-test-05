@@ -673,8 +673,7 @@ export default function App() {
         
             const pages = await crawlSitemap(
                 sitemapUrl,
-                log,
-                (current, total) => {
+        try {
                     log(`   📊 Progress: ${current}/${total} URLs`);
                 }
             );
@@ -713,10 +712,8 @@ export default function App() {
     const urlsArray = Array.from(selectedUrls);
     log(`🚀 Starting optimization for ${urlsArray.length} existing posts...`);
 
-    743
       
       for (const url of urlsArray) {
-        743:1
           
           log(`📥 Fetching existing post: ${url}`);
           
@@ -742,12 +739,10 @@ export default function App() {
       } catch (error: any) {
                     log(`❌ Error during optimization: ${error.message}`);
                   }
-743
-747
+
     setIsOptimizingExisting(false);
   }}, [log]);
 
-      // Return minimal JSX since actual UI is in components.tsx
   return <div>Loading...</div>;
 }
     }
