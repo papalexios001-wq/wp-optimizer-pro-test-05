@@ -684,7 +684,8 @@ export default {
     createComparisonTable,
     createHighlightBox,
     createYouTubeEmbed,
-    createReferencesSection,
+    692
+        
   generateHeroSection,
   generateProgressIndicator,
   generateBeforeAfterSlider,
@@ -693,7 +694,7 @@ export default {
   // NEW: Mobile-First Hero Section
   createMobileFirstHeroSection,
   // NEW: Animated Progress Indicator,
-  createAnimatedProgressIndicator,
+
   // NEW: Interactive Before/After Slider
   createBeforeAfterSlider,
   // NEW: Social Proof Counter
