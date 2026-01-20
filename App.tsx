@@ -727,6 +727,9 @@ export default function App() {
           const config: GenerateConfig = {
             topic: existingPost.title,
             targetWordCount: existingPost.content?.length || 2000,
+        provider,
+        model: effectiveModel,
+        apiKeys,
           };
 
           // Generate optimized content
@@ -737,7 +740,7 @@ export default function App() {
                   }
 
     setIsOptimizingExisting(false);
-  }}, [log]);
+  }}, [log, selectedUrls, wpConfig, provider, effectiveModel, apiKeys]);
 
   return <div>Loading...</div>;
 }
