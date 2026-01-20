@@ -1,3 +1,5 @@
+l54
+l54
 /**
  * WordPress Post Updater - Stub Implementation
  * Provides functions for fetching and updating existing WordPress posts
@@ -55,6 +57,7 @@ export async function fetchExistingPost(
         siteUrl: wpConfig.siteUrl,
         username: wpConfig.username,
         applicationPassword: wpConfig.applicationPassword
+                password: wpConfig.applicationPassword,
       }
     };
   } catch (error: any) {
