@@ -1,3 +1,5 @@
+740
+738
 // ═══════════════════════════════════════════════════════════════════════════════
 // WP OPTIMIZER PRO v42.0 — ENTERPRISE SOTA MAIN APPLICATION// ═══════════════════════════════════════════════════════════════════════════════
 // 🚀 SOTA ENTERPRISE FEATURES:
@@ -49,7 +51,9 @@ import {
   PageStatus,
   ActivityType,
   QuickOptimizeRequest,
-  BulkOptimizeRequest,
+745
+    740
+        BulkOptimizeRequest,
   PageQueueFilters,
   DEFAULT_ANALYTICS_METRICS,
   DEFAULT_SESSION_STATS,
@@ -739,7 +743,7 @@ export default function App() {
     log(`❌ Error during optimization: ${error.message}`);
   }
               }
-  } finally {
+} finally {
     setIsOptimizingExisting(false);
   }
           }, [log]);
