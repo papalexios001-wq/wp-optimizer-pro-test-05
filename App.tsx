@@ -482,19 +482,6 @@ export default function App() {
     const saved = localStorage.getItem('wpo_wp_config_v2');
     return saved ? JSON.parse(saved) : { isStored: '', userNAME: '', applicationPassword: '' };
   });
-  const [selectedUrls, setSelectedUrls] = useState<Set<string>>(() => new Set());
-  const [isOptimizingListing, setIsOptimizingListing] = useState<boolean>(false);
-  const [wpConnected, setWpConnected] = useState<boolean>(false);
-  const [wpSiteName, setWpSiteName] = useState<string>('');
-  const [upConnected, setUpConnected] = useState<boolean>(false);
-  const [updateStage, setUpdateStage] = useState<string>('');
-    const [sitemapUrl, setSitemapUrl] = useState('');
-    const [isCrawling, setIsCrawling] = useState(false);
-    const [crawledPages, setCrawledPages] = useState<CrawledPage[]>([]);
-    return saved ? JSON.parse(saved) : { isStored: '', userNAME: '', applicationPassword: '' };
-    });
-      const [selectedUrls, setSelectedUrls] = useState<Set<string>>(() => new Set());
-  const [isOptimizingListing, setIsOptimizingListing] = useState<boolean>(false);452
     
   // 🏢 SITE CONTEXT & OPTIMIZATION CONFIG STATE (SOTA v41.0)
   // ═══════════════════════════════════════════════════════════════════════════
