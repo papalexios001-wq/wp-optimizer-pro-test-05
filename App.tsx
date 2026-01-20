@@ -730,19 +730,20 @@ export default function App() {
           const config: GenerateConfig = {
             topic: existingPost.title,
             targetWordCount: existingPost.content?.length || 2000,
-            preserveImages: optimizationConfig.preserveImages,
-            preserveCategories: optimizationConfig.preserveCategories,
-            preserveTags: optimizationConfig.preserveTags,
           };
 
           // Generate optimized content
       const result = await orchestrator.generate(config, log, (p) => {});
               }
-            catch (error) {
+            catch (er: anyror) {
     log(`❌ Error during optimization: ${error.message}`);
   }
               }
 } finally {
     setIsOptimizingExisting(false);
   }}, [log]);
+
+      // Return minimal JSX since actual UI is in components.tsx
+  return <div>Loading...</div>;
+}
     }
