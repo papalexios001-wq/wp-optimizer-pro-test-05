@@ -1729,3 +1729,276 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = memo(({
 });
 
 LoadingSpinner.displayName = 'LoadingSpinner';
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 🎯 SITEMAP URL SELECTOR (SOTA v43.0)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+interface SitemapUrlSelectorProps {
+  crawledPages: any[];  // CrawledPage[] from types
+  selectedUrls: Set<string>;
+  onUrlToggle: (url: string) => void;
+  onSelectAll: () => void;
+  onDeselectAll: () => void;
+  onOptimizeSelected: () => void;
+  isOptimizing: boolean;
+  isCrawling: boolean;
+}
+
+export const SitemapUrlSelector: React.FC<SitemapUrlSelectorProps> = ({
+  crawledPages,
+  selectedUrls,
+  onUrlToggle,
+  onSelectAll,
+  onDeselectAll,
+  onOptimizeSelected,
+  isOptimizing,
+  isCrawling,
+}) => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filter pages based on search query
+  const filteredPages = useMemo(() => {
+    if (!searchQuery.trim()) return crawledPages;
+    const query = searchQuery.toLowerCase();
+    return crawledPages.filter(
+      (page) =>
+        page.url?.toLowerCase().includes(query) ||
+        page.title?.toLowerCase().includes(query)
+    );
+  }, [crawledPages, searchQuery]);
+
+  const allSelected = filteredPages.length > 0 && filteredPages.every((page) => selectedUrls.has(page.url));
+  const someSelected = filteredPages.some((page) => selectedUrls.has(page.url));
+
+  if (crawledPages.length === 0) return null;
+
+  return (
+    <div
+      style={{
+        marginTop: '24px',
+        background: 'rgba(15, 23, 42, 0.6)',
+        borderRadius: '12px',
+        padding: '20px',
+        border: '1px solid rgba(99, 102, 241, 0.2)',
+      }}
+    >
+      {/* Header */}
+      <div style={{ marginBottom: '16px' }}>
+        <h4
+          style={{
+            fontSize: '16px',
+            fontWeight: 700,
+            color: '#f1f5f9',
+            marginBottom: '8px',
+          }}
+        >
+          🎯 Select URLs to Optimize ({selectedUrls.size} selected)
+        </h4>
+        <p
+          style={{
+            fontSize: '12px',
+            color: '#64748b',
+            margin: 0,
+          }}
+        >
+          Choose which pages to fetch and optimize using existing post optimization
+        </p>
+      </div>
+
+      {/* Search & Bulk Actions */}
+      <div
+        style={{
+          display: 'flex',
+          gap: '12px',
+          marginBottom: '16px',
+          flexWrap: 'wrap',
+        }}
+      >
+        <input
+          type="text"
+          placeholder="🔍 Search URLs or titles..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{
+            flex: 1,
+            minWidth: '200px',
+            padding: '10px 14px',
+            background: 'rgba(15, 23, 42, 0.8)',
+            border: '1px solid rgba(99, 102, 241, 0.3)',
+            borderRadius: '8px',
+            color: '#e2e8f0',
+            fontSize: '13px',
+            outline: 'none',
+          }}
+        />
+        <button
+          onClick={allSelected ? onDeselectAll : onSelectAll}
+          disabled={isCrawling || isOptimizing}
+          style={{
+            padding: '10px 20px',
+            background: allSelected
+              ? 'rgba(239, 68, 68, 0.2)'
+              : 'rgba(99, 102, 241, 0.2)',
+            border: `1px solid ${allSelected ? '#ef4444' : '#6366f1'}`,
+            borderRadius: '8px',
+            color: allSelected ? '#f87171' : '#a5b4fc',
+            fontSize: '13px',
+            fontWeight: 600,
+            cursor: isCrawling || isOptimizing ? 'not-allowed' : 'pointer',
+            opacity: isCrawling || isOptimizing ? 0.5 : 1,
+          }}
+        >
+          {allSelected ? '❌ Deselect All' : '✅ Select All'}
+        </button>
+        <button
+          onClick={onOptimizeSelected}
+          disabled={selectedUrls.size === 0 || isOptimizing || isCrawling}
+          style={{
+            padding: '10px 24px',
+            background:
+              selectedUrls.size === 0 || isOptimizing || isCrawling
+                ? 'rgba(100, 116, 139, 0.2)'
+                : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+            border: 'none',
+            borderRadius: '8px',
+            color: '#fff',
+            fontSize: '13px',
+            fontWeight: 700,
+            cursor:
+              selectedUrls.size === 0 || isOptimizing || isCrawling
+                ? 'not-allowed'
+                : 'pointer',
+            opacity: selectedUrls.size === 0 || isOptimizing || isCrawling ? 0.5 : 1,
+          }}
+        >
+          {isOptimizing ? '⏳ Optimizing...' : `🚀 Optimize Selected (${selectedUrls.size})`}
+        </button>
+      </div>
+
+      {/* URL List */}
+      <div
+        style={{
+          maxHeight: '400px',
+          overflowY: 'auto',
+          background: 'rgba(15, 23, 42, 0.4)',
+          borderRadius: '8px',
+          border: '1px solid rgba(99, 102, 241, 0.1)',
+        }}
+      >
+        {filteredPages.length === 0 ? (
+          <div
+            style={{
+              padding: '32px',
+              textAlign: 'center',
+              color: '#64748b',
+              fontSize: '14px',
+            }}
+          >
+            {searchQuery ? '🔍 No URLs match your search' : '📭 No pages crawled yet'}
+          </div>
+        ) : (
+          filteredPages.map((page, index) => {
+            const isSelected = selectedUrls.has(page.url);
+            return (
+              <div
+                key={page.url || index}
+                onClick={() => !isCrawling && !isOptimizing && onUrlToggle(page.url)}
+                style={{
+                  padding: '12px 16px',
+                  borderBottom:
+                    index < filteredPages.length - 1
+                      ? '1px solid rgba(99, 102, 241, 0.1)'
+                      : 'none',
+                  cursor: isCrawling || isOptimizing ? 'not-allowed' : 'pointer',
+                  background: isSelected ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '12px',
+                  opacity: isCrawling || isOptimizing ? 0.6 : 1,
+                }}
+                onMouseEnter={(e) => {
+                  if (!isCrawling && !isOptimizing) {
+                    e.currentTarget.style.background = isSelected
+                      ? 'rgba(99, 102, 241, 0.15)'
+                      : 'rgba(99, 102, 241, 0.05)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = isSelected
+                    ? 'rgba(99, 102, 241, 0.1)'
+                    : 'transparent';
+                }}
+              >
+                <div
+                  style={{
+                    width: '20px',
+                    height: '20px',
+                    borderRadius: '4px',
+                    border: `2px solid ${isSelected ? '#6366f1' : '#475569'}`,
+                    background: isSelected ? '#6366f1' : 'transparent',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    marginTop: '2px',
+                  }}
+                >
+                  {isSelected && (
+                    <span style={{ color: '#fff', fontSize: '12px', lineHeight: 1 }}>✓</span>
+                  )}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      color: isSelected ? '#e0e7ff' : '#cbd5e1',
+                      marginBottom: '4px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {page.title || 'Untitled'}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: '11px',
+                      color: '#64748b',
+                      fontFamily: 'monospace',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {page.url}
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Summary */}
+      {filteredPages.length > 0 && (
+        <div
+          style={{
+            marginTop: '12px',
+            fontSize: '12px',
+            color: '#64748b',
+            textAlign: 'center',
+          }}
+        >
+          Showing {filteredPages.length} of {crawledPages.length} URLs
+          {someSelected && ` • ${selectedUrls.size} selected`}
+        </div>
+      )}
+    </div>
+  );
+};
+
+SitemapUrlSelector.displayName = 'SitemapUrlSelector';
+
