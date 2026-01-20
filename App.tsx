@@ -735,8 +735,7 @@ export default function App() {
           // Generate optimized content
       const result = await orchestrator.generate(config, log, (p) => {});
               }
-            catch error: any) {
-    log(`❌ Error during optimization: ${error.message}`);
+      } catch (error: any) {    log(`❌ Error during optimization: ${error.message}`);
   }
               }
 } finally {
