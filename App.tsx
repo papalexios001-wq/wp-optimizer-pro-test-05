@@ -445,6 +445,7 @@ const validateModelFormat = (model: string, provider: 'openrouter' | 'groq'): { 
             return { valid: true, message: '✓ Valid format' };
         }
         return { valid: false, message: 'Invalid model format' };
+          }
           
   // Default return for other providers
   return { valid: true, message: '' };
