@@ -490,8 +490,7 @@ export default function App() {
     const [wpConfig, setWpConfig] = useState<WordPressConfig>(() => {
           const [selectedUrls, setSelectedUrls] = useState<Set<string>>(new Set());
   const [isOptimizingExisting, setIsOptimizingExisting] = useState<boolean>(false);
-          const [selectedUrl, setSelectedUrl] = useState<string>('');
-        const saved = localStorage.getItem('wpo_wp_config_v2');
+  const [selectedUrls, setSelectedUrls] = useState<Set<string>>(new Set());        const saved = localStorage.getItem('wpo_wp_config_v2');
         return saved ? JSON.parse(saved) : { siteUrl: '', username: '', applicationPassword: '' };
     });
     const [wpConnected, setWpConnected] = useState(false);
