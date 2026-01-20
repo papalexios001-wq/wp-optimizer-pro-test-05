@@ -518,6 +518,10 @@ export default function App() {
     const stored = localStorage.getItem(STORAGE_KEYS.SESSION_STATS);
     return stored ? JSON.parse(stored) : DEFAULT_SESSION_STATS;
   });
+      const [optimizationConfig, setOptimizationConfig] = useState<OptimizationConfig>(() => {
+              const loaded = loadEnterpriseConfig();
+              return loaded?.optimization || DEFAULT_OPTIMIZATION_CONFIG;
+            });
   
   // Recent jobs
   const [recentJobs, setRecentJobs] = useState<OptimizationJob[]>(() => {
