@@ -744,6 +744,5 @@ export default function App() {
               }
 } finally {
     setIsOptimizingExisting(false);
-  }  }
-    }
+  }}, [log]);
     }
