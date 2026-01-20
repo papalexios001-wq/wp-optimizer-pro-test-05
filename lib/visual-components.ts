@@ -652,7 +652,7 @@ export function createSocialProofCounter(
       <div style="font-size: clamp(24px, 4vw, 36px) !important; font-weight: 800 !important; color: ${TOKENS.primary} !important;">${escapeHtml(stat.value)}</div>
       <div style="font-size: 14px !important; color: ${TOKENS.gray500} !important; margin-top: 4px !important;">${escapeHtml(stat.label)}</div>
     </div>
-  `).join('');
+ ) `).join('');
   
   return `
 <div style="background: linear-gradient(180deg, ${TOKENS.primaryBg} 0%, white 100%) !important; border-radius: ${TOKENS.radiusXl} !important; padding: 32px 16px !important; margin: 24px 0 !important;">
