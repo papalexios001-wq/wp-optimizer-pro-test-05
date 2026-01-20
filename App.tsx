@@ -733,4 +733,4 @@ export default function App() {
           };
 
           // Generate optimized content
-      const result = await orchestrator.generate(config,
+      const result = await orchestrator.generate(config, log, () => {});
