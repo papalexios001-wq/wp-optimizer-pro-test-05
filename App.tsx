@@ -474,20 +474,28 @@ export default function App() {
     const [topic, setTopic] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
     const [progress, setProgress] = useState<StageProgress | null>(null);
-    const [result, setResult] = useState<GenerationResult | null>(null);
     const [logs, setLogs] = useState<string[]>([]);
+      const [result, setResult] = useState<GenerationResult | null>(null);
     
     // Sitemap Crawler State
+      const [wpConfig, setWpConfig] = useState<WordPressConfig>(() => {
+    const saved = localStorage.getItem('wpo_wp_config_v2');
+    return saved ? JSON.parse(saved) : { isStored: '', userNAME: '', applicationPassword: '' };
+  });
+  const [selectedUrls, setSelectedUrls] = useState<Set<string>>(() => new Set());
+  const [isOptimizingListing, setIsOptimizingListing] = useState<boolean>(false);
+  const [wpConnected, setWpConnected] = useState<boolean>(false);
+  const [wpSiteName, setWpSiteName] = useState<string>('');
+  const [upConnected, setUpConnected] = useState<boolean>(false);
+  const [updateStage, setUpdateStage] = useState<string>('');
     const [sitemapUrl, setSitemapUrl] = useState('');
     const [isCrawling, setIsCrawling] = useState(false);
     const [crawledPages, setCrawledPages] = useState<CrawledPage[]>([]);
-    const [internalLinks, setInternalLinks] = useState<InternalLinkTarget[]>([]);
-    
-    // WordPress State
-    const [wpConfig, setWpConfig] = useState<WordPressConfig>(() => {
-            const saved = localStorage.getItem('wpo_wp_config_v2');
     return saved ? JSON.parse(saved) : { isStored: '', userNAME: '', applicationPassword: '' };
     });
+      const [selectedUrls, setSelectedUrls] = useState<Set<string>>(() => new Set());
+  const [isOptimizingListing, setIsOptimizingListing] = useState<boolean>(false);452
+    
   // 🏢 SITE CONTEXT & OPTIMIZATION CONFIG STATE (SOTA v41.0)
   // ═══════════════════════════════════════════════════════════════════════════
   
@@ -495,10 +503,6 @@ export default function App() {
     const loaded = loadEnterpriseConfig();
     return loaded?.siteContext || DEFAULT_SITE_CONTEXT;
   });
-  
-  const [optimizationConfig, setOptimizationConfig] = useState<OptimizationConfig>(() => {
-    const loaded = loadEnterpriseConfig();
-    return loaded?.optimization || DEFAULT_OPTIMIZATION_CONFIG;
   });
 
       // ═════════════════════════════════════════════════════════════════
@@ -726,16 +730,16 @@ export default function App() {
           const config: GenerateConfig = {
             topic: existingPost.title,
             targetWordCount: existingPost.content?.length || 2000,
-            realTimeStats: optimizationConfig.realTimeStats,
+            729
+                : optimizationConfig.realTimeStats,
             preserveImages: optimizationConfig.preserveImages,
             preserveCategories: optimizationConfig.preserveCategories,
             preserveTags: optimizationConfig.preserveTags,
-            optimizationMode: optimizationConfig.optimizationMode,
           };
 
           // Generate optimized content
-          const result = await orchestrator.generateContent(config, apiKeys, siteContext);
-
+          const result = await 737
+      const result = await orchestrator.generate(config, apiKeys, siteContext);
           if (!result.success || !result.content) {
             log(`❌ Optimization failed for ${url}`);
             continue;
